@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface StudentDashboardProps {
   activeSubTab?: 'overview' | 'courses' | 'achievements' | 'scholarship' | 'feedback' | 'settings';
@@ -66,7 +68,7 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
     setAchTitle('');
     setAchDesc('');
     setAchLink('');
-    alert("Yutuq topshirildi! Admin tasdiqlashi bilan reytingingiz yangilanadi.");
+    toast.success("Yutuq topshirildi! Admin tasdiqlashi bilan reytingingiz yangilanadi.");
   };
 
   const handleGenerateToken = () => {
@@ -116,10 +118,10 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
     <div className="w-full space-y-8 animate-fadeIn text-left">
       
       {/* Student Profile Overview Card (Horizontal Glass Banner) */}
-      <div className="relative rounded-2xl border border-slate-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/30 backdrop-blur-md p-6 overflow-hidden shadow-sm dark:shadow-none">
+      <Card className="relative rounded-2xl border border-slate-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/30 backdrop-blur-md p-6 overflow-hidden shadow-sm dark:shadow-none gap-0 py-0 flex-col justify-start">
         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10 w-full">
           <div className="flex items-center gap-4">
             <div className="relative">
               <img
@@ -127,19 +129,19 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
                 alt={student.fullName}
                 className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-indigo-500/30 object-cover shadow-lg shadow-indigo-500/10"
               />
-              <span className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-950 text-[10px] font-black text-white ${student.status === 'Grant' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
+              <span className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-950 text-xs font-black text-white ${student.status === 'Grant' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
                 {student.status[0]}
               </span>
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
                 <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-none">{student.fullName}</h2>
-                <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${student.status === 'Grant' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.1)]' : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'}`}>
+                <span className={`px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${student.status === 'Grant' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.1)]' : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'}`}>
                   {student.status}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Guruh: <strong className="text-indigo-400 font-bold">{student.group}</strong> | ID: {student.id}</p>
-              <div className="flex flex-wrap gap-4 mt-3 text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-slate-500 dark:text-slate-400">Guruh: <strong className="text-indigo-400 font-bold">{student.group}</strong> | ID: {student.id}</p>
+              <div className="flex flex-wrap gap-4 mt-3 text-xs text-slate-500 dark:text-slate-400">
                 <span>Leaderboard: <strong className="text-slate-800 dark:text-white font-black">#{ratingRank}-o'rin</strong></span>
                 <span>•</span>
                 <span>Yakuniy Reyting Balli: <strong className="text-indigo-400 font-extrabold">{student.finalScore} / 110.0</strong></span>
@@ -149,17 +151,17 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
 
           {/* Quick Stats Grid inside profile */}
           <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-zinc-950/40 p-4 rounded-xl border border-slate-200 dark:border-zinc-800/40">
-            <div className="text-center px-2">
-              <span className="text-[10px] text-slate-500 block font-bold uppercase tracking-wider">GPA</span>
-              <span className="text-sm font-black text-slate-800 dark:text-white">{student.gpa}%</span>
+            <div className="text-center px-4">
+              <span className="text-xs text-slate-500 block font-bold uppercase tracking-wider">GPA</span>
+              <span className="text-base font-black text-slate-800 dark:text-white">{student.gpa}%</span>
             </div>
-            <div className="text-center px-2 border-l border-slate-200 dark:border-zinc-850/50">
-              <span className="text-[10px] text-slate-500 block font-bold uppercase tracking-wider">DAVOMAT</span>
-              <span className="text-sm font-black text-emerald-500 dark:text-emerald-400">{student.attendance_summary.attendance_percentage}%</span>
+            <div className="text-center px-4 border-l border-slate-200 dark:border-zinc-850/50">
+              <span className="text-xs text-slate-500 block font-bold uppercase tracking-wider">DAVOMAT</span>
+              <span className="text-base font-black text-emerald-500 dark:text-emerald-400">{student.attendance_summary.attendance_percentage}%</span>
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* 1. Overview Tab */}
       {currentTab === 'overview' && (
@@ -233,20 +235,17 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
             </div>
 
             {/* Strategic Warnings / PDP Rules Banner */}
-            <div className="p-5 rounded-xl border border-rose-500/20 bg-rose-500/5 relative overflow-hidden shadow-lg shadow-rose-950/2">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-[40px]" />
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3.5 flex items-center gap-2">
-                <AlertTriangle className="text-rose-500 animate-pulse" size={18} />
-                Grant Saqlab Qolish Monitoringi (PDP Nizomi)
-              </h3>
-              <div className="space-y-2">
+            <Alert variant={student.gpa < 80 || student.attendance_summary.attendance_percentage < 80 || student.finalScore < 80 ? "warning" : "success"}>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Grant Saqlab Qolish Monitoringi (PDP Nizomi)</AlertTitle>
+              <AlertDescription className="space-y-1.5 mt-2">
                 {getStrategicAdvice().map((adv, idx) => (
-                  <p key={idx} className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
+                  <p key={idx} className="text-xs font-medium leading-relaxed">
                     {adv}
                   </p>
                 ))}
-              </div>
-            </div>
+              </AlertDescription>
+            </Alert>
 
             {/* General Enrolled Courses Tracker */}
             <Card className="bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none">
@@ -399,18 +398,18 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
             </Card>
 
             {/* Grant Status Display Widget */}
-            <div className={`p-5 rounded-xl border flex flex-col justify-between items-center text-center ${student.isGrantCancelled ? 'border-rose-500/20 bg-rose-500/5' : 'border-emerald-500/20 bg-emerald-500/5'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${student.isGrantCancelled ? 'bg-rose-500/10 text-rose-400 animate-pulse' : 'bg-emerald-500/10 text-emerald-400'}`}>
-                {student.isGrantCancelled ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
+            <Alert variant={student.isGrantCancelled ? "destructive" : "success"} className="flex flex-col items-center justify-center text-center p-5 [&>svg]:static [&>svg]:mb-2 [&>svg~*]:pl-0">
+              <div className="flex flex-col items-center">
+                {student.isGrantCancelled ? <AlertTriangle className="h-5 w-5 text-rose-500 animate-pulse" /> : <CheckCircle2 className="h-5 w-5 text-emerald-500" />}
+                <AlertTitle className="uppercase tracking-widest text-xs text-slate-500 mb-1">Grant Nizomi Statusi</AlertTitle>
+                <div className={`text-base font-black ${student.isGrantCancelled ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                  {student.isGrantCancelled ? "Akademik bekor qilindi" : "Grant Faol"}
+                </div>
+                <AlertDescription className="text-xs text-slate-500 mt-2">
+                  {student.isGrantCancelled ? "GPA yoki Davomat mezonidan o'ta olmadingiz!" : "Keyingi o'quv yili uchun barcha mezonlar normal."}
+                </AlertDescription>
               </div>
-              <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-1">Grant Nizomi Statusi</h4>
-              <div className={`text-base font-black ${student.isGrantCancelled ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                {student.isGrantCancelled ? "Akademik bekor qilindi" : "Grant Faol"}
-              </div>
-              <p className="text-[10px] text-slate-500 mt-2">
-                {student.isGrantCancelled ? "GPA yoki Davomat mezonidan o'ta olmadingiz!" : "Keyingi o'quv yili uchun barcha mezonlar normal."}
-              </p>
-            </div>
+            </Alert>
 
           </div>
         </div>
@@ -427,11 +426,11 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
           {student.subjects.map(sub => {
             const relatedAssignments = student.assignments; // Simple related assignments list
             return (
-              <div key={sub.subject_id} className="p-6 rounded-xl border border-slate-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md space-y-6 shadow-sm dark:shadow-none">
-                <div className="flex justify-between items-start border-b border-slate-200 dark:border-zinc-850/40 pb-4">
+              <Card key={sub.subject_id} className="p-6 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border-slate-200 dark:border-zinc-800/80 space-y-6 shadow-sm dark:shadow-none gap-0 py-0 flex-col justify-start">
+                <div className="flex justify-between items-start border-b border-slate-200 dark:border-zinc-850/40 pb-4 w-full">
                   <div>
                     <h4 className="text-base font-black text-slate-900 dark:text-white">{sub.subject_name}</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Mentor: <strong className="text-slate-800 dark:text-slate-200 font-medium">{sub.teacher}</strong> | Davomatingiz: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{sub.subject_summary.percentage}%</strong></p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Mentor: <strong className="text-slate-800 dark:text-slate-200 font-semibold">{sub.teacher}</strong> | Davomatingiz: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{sub.subject_summary.percentage}%</strong></p>
                   </div>
                   <span className="px-3 py-1.5 rounded-lg bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-xs text-slate-600 dark:text-slate-400 font-mono">
                     Lectures: {sub.subject_summary.attended}/{sub.subject_summary.total}
@@ -439,14 +438,14 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
                 </div>
 
                 {/* Materials List */}
-                <div>
-                  <h5 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Yuklab olingan resurslar</h5>
+                <div className="w-full">
+                  <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Yuklab olingan resurslar</h5>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <a href="#" onClick={(e) => e.preventDefault()} className="p-2.5 rounded-lg bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-200 dark:border-zinc-800/40 hover:border-indigo-500/30 text-xs text-slate-700 dark:text-slate-200 flex items-center gap-2.5 transition-all shadow-sm dark:shadow-none">
+                    <a href="#" onClick={(e) => e.preventDefault()} className="p-2.5 rounded-lg bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-200 dark:border-zinc-800/40 hover:border-indigo-500/30 text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2.5 transition-all shadow-sm dark:shadow-none">
                       <FileText size={14} className="text-indigo-500 dark:text-indigo-400" />
                       1-ma'ruza_Slaydlar.pdf
                     </a>
-                    <a href="#" onClick={(e) => e.preventDefault()} className="p-2.5 rounded-lg bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-200 dark:border-zinc-800/40 hover:border-indigo-500/30 text-xs text-slate-700 dark:text-slate-200 flex items-center gap-2.5 transition-all shadow-sm dark:shadow-none">
+                    <a href="#" onClick={(e) => e.preventDefault()} className="p-2.5 rounded-lg bg-slate-50/50 dark:bg-zinc-950/40 border border-slate-200 dark:border-zinc-800/40 hover:border-indigo-500/30 text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2.5 transition-all shadow-sm dark:shadow-none">
                       <FileText size={14} className="text-indigo-500 dark:text-indigo-400" />
                       Amaliy_Ish_Kodi_Sample.zip
                     </a>
@@ -454,15 +453,15 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
                 </div>
 
                 {/* Assignments Section */}
-                <div>
-                  <h5 className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Topshirilishi kerak bo'lgan vazifalar</h5>
+                <div className="w-full">
+                  <h5 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Topshirilishi kerak bo'lgan vazifalar</h5>
                   <div className="space-y-3.5">
                     {relatedAssignments.map(asn => (
                       <div key={asn.id} className="p-4 rounded-lg bg-slate-50/50 dark:bg-zinc-950/30 border border-slate-200 dark:border-zinc-800/60 flex flex-col sm:flex-row justify-between sm:items-center gap-4 shadow-sm dark:shadow-none">
                         <div>
                           <div className="flex items-center gap-2 mb-1.5">
-                            <h6 className="text-xs font-black text-slate-900 dark:text-white">{asn.title}</h6>
-                            <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase ${
+                            <h6 className="text-sm font-black text-slate-900 dark:text-white">{asn.title}</h6>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
                               asn.status === 'Topshirilgan' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' :
                               asn.status === 'Tekshirilmoqda' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' :
                               'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
@@ -470,8 +469,8 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
                               {asn.status}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">{asn.description}</p>
-                          <div className="flex gap-4 mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+                          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">{asn.description}</p>
+                          <div className="flex gap-4 mt-2 text-xs text-slate-400 dark:text-slate-500">
                             <span>Muddati (Deadline): <strong className="text-slate-700 dark:text-slate-300 font-bold">{asn.deadline}</strong></span>
                             {asn.score !== undefined && (
                               <span>Baho: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{asn.score} / 15.0 ball</strong></span>
@@ -480,8 +479,8 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
                         </div>
 
                         {asn.feedback && (
-                          <div className="sm:max-w-xs p-3 rounded bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10 text-[11px] text-indigo-700 dark:text-indigo-300 leading-relaxed shadow-sm dark:shadow-none">
-                            <strong className="block text-[9px] uppercase font-bold text-indigo-600 dark:text-indigo-400 mb-0.5">Ustoz Fikri:</strong> 
+                          <div className="sm:max-w-xs p-3 rounded bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10 text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed shadow-sm dark:shadow-none">
+                            <strong className="block text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400 mb-0.5">Ustoz Fikri:</strong> 
                             "{asn.feedback}"
                           </div>
                         )}
@@ -490,7 +489,7 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
                   </div>
                 </div>
 
-              </div>
+              </Card>
             );
           })}
         </div>

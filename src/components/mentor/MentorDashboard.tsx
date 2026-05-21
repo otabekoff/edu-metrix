@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface MentorDashboardProps {
   activeSubTab?: 'journal' | 'feedback';
@@ -88,7 +89,7 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
           feedback: feedbackText
         }
       });
-      alert("Baho va fikr muvaffaqiyatli kiritildi! Talaba reytingi avtomat yangilandi.");
+      toast.success("Baho va fikr muvaffaqiyatli kiritildi! Talaba reytingi avtomat yangilandi.");
     }
     setGradingStudentId(null);
   };
@@ -112,22 +113,22 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
     });
 
     setBroadcastText('');
-    alert("Feedback talabaga shaxsiy xat sifatida yuborildi!");
+    toast.success("Feedback talabaga shaxsiy xat sifatida yuborildi!");
   };
 
   return (
     <div className="w-full space-y-8 animate-fadeIn text-left">
       
       {/* Mentor Header Card */}
-      <div className="p-6 rounded-2xl border border-slate-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md relative overflow-hidden shadow-sm dark:shadow-none">
+      <Card className="p-6 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border border-slate-200 dark:border-zinc-800/80 relative overflow-hidden shadow-sm dark:shadow-none gap-0 py-0 flex-col justify-start">
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
           <div>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-1.5 flex items-center gap-2">
               <BookOpen className="text-purple-650 dark:text-purple-400" size={24} />
               Mentor Ish Stoli
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">O'qituvchi: <strong className="text-purple-660 dark:text-purple-400 font-bold">D. Eshmuradov</strong> | Darslar, davomat va amaliy topshiriqlar boshqaruvi</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">O'qituvchi: <strong className="text-purple-660 dark:text-purple-400 font-bold">D. Eshmuradov</strong> | Darslar, davomat va amaliy topshiriqlar boshqaruvi</p>
           </div>
 
           {/* Group and Subject Selectors inside header */}
@@ -135,9 +136,9 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
             
             {/* Group switch using Shadcn */}
             <div className="space-y-1">
-              <Label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Guruhni Tanlang</Label>
+              <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Guruhni Tanlang</Label>
               <Select value={selectedGroup} onValueChange={setSelectedGroup}>
-                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-200">
+                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202 h-9 w-24">
                   <SelectValue placeholder="Guruh" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202">
@@ -150,9 +151,9 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
 
             {/* Subject switch using Shadcn */}
             <div className="space-y-1">
-              <Label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Fanni Tanlang</Label>
+              <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Fanni Tanlang</Label>
               <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-200">
+                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202 h-9 w-60">
                   <SelectValue placeholder="Fan" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202">
@@ -164,7 +165,7 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
 
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* 1. Journal & Attendance Tab */}
       {currentTab === 'journal' && (
