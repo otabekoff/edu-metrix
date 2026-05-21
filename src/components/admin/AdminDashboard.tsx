@@ -11,7 +11,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import sampleJson from '../../../useful_assets/sample.json';
+import { toast } from 'sonner';
 
 interface AdminDashboardProps {
   activeSubTab?: 'matrix' | 'queue' | 'modifiers' | 'faceid';
@@ -27,8 +29,8 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
   const setCurrentTab = setActiveSubTab || setLocalSubTab;
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedGroupFilter, setSelectedGroupFilter] = useState('');
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState('');
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState('ALL_GROUPS');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL_STATUS');
   const [inspectedStudentId, setInspectedStudentId] = useState<string | null>(null);
   
   // Custom API Console States
@@ -67,8 +69,8 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
   // Filtered Students
   const filteredStudents = state.students.filter(student => {
     const matchesSearch = student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || student.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGroup = selectedGroupFilter ? student.group === selectedGroupFilter : true;
-    const matchesStatus = selectedStatusFilter ? student.status === selectedStatusFilter : true;
+    const matchesGroup = selectedGroupFilter && selectedGroupFilter !== 'ALL_GROUPS' ? student.group === selectedGroupFilter : true;
+    const matchesStatus = selectedStatusFilter && selectedStatusFilter !== 'ALL_STATUS' ? student.status === selectedStatusFilter : true;
     return matchesSearch && matchesGroup && matchesStatus;
   });
 
@@ -122,7 +124,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
     });
 
     setSelectedStudentModifierId(null);
-    alert("Jarima va bonus ballar saqlandi va reyting qayta hisoblandi!");
+    toast.success("Jarima va bonus ballar saqlandi va reyting qayta hisoblandi!");
   };
 
   const handleSaveTutor = (e: React.FormEvent) => {
@@ -144,7 +146,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
     });
 
     setSelectedStudentTutorId(null);
-    alert("Tyutor bahosi yangilandi va talaba reytingiga qo'shildi!");
+    toast.success("Tyutor bahosi yangilandi va talaba reytingiga qo'shildi!");
   };
 
   const handleVerifyAchievement = (studentId: string, achId: string, status: 'Tasdiqlandi' | 'Rad etildi') => {
@@ -158,7 +160,11 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
         pointsAwarded: parseFloat(achievementPointsAward)
       }
     });
-    alert(`Yutuq arizasi ${status === 'Tasdiqlandi' ? 'TASDIQLANDI' : 'RAD ETILDI'}!`);
+    if (status === 'Tasdiqlandi') {
+      toast.success("Yutuq arizasi muvaffaqiyatli tasdiqlandi!");
+    } else {
+      toast.error("Yutuq arizasi rad etildi!");
+    }
   };
 
   const handleRunApiImport = () => {
@@ -180,7 +186,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
         gateway: "PDP-FaceID-Router-Edge",
         client_ip: "192.168.12.45"
       }, null, 2));
-      alert("Simulated API Gateway completed! New student data parsed and added to leaderboard.");
+      toast.success("Simulated API Gateway completed! New student data parsed and added to leaderboard.");
     } catch (err) {
       const errorLog = `[${timestampStr}] [ERROR] 400 Bad Request - JSON validation failed.`;
       setApiConsoleLogs(prev => [...prev, errorLog]);
@@ -214,36 +220,36 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
     <div className="w-full max-w-7xl mx-auto space-y-6 animate-fadeIn text-left">
       
       {/* Top Banner Context Card */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/40 p-6 backdrop-blur-2xl">
+      <Card className="relative overflow-hidden border border-slate-800/80 bg-slate-950/40 p-6 backdrop-blur-2xl gap-0 py-0 flex-col justify-start">
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
         
-        <div className="relative z-10 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between sm:items-center gap-4 w-full">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest animate-pulse">
+              <div className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-xs font-black text-emerald-400 uppercase tracking-widest animate-pulse">
                 SISTEMA ADMIN
               </div>
-              <span className="text-[10px] text-slate-500 font-bold">• SECURE CONNECT</span>
+              <span className="text-xs text-slate-500 font-bold">• SECURE CONNECT</span>
             </div>
             <h2 className="text-xl md:text-2xl font-black text-white flex items-center gap-2 tracking-tight">
               <Shield className="text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)] animate-pulse" size={22} />
               Admin Boshqaruv Markazi
             </h2>
-            <p className="text-xs text-slate-400">PDP University • Administrator: <strong className="text-slate-100 font-extrabold">ADMIN-1</strong></p>
+            <p className="text-sm text-slate-400">PDP University • Administrator: <strong className="text-slate-100 font-extrabold">ADMIN-1</strong></p>
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { dispatch({ type: 'RESET_STATE' }); alert("State has been reset to seed values!"); }}
+              onClick={() => { dispatch({ type: 'RESET_STATE' }); toast.success("Ma'lumotlar boshlang'ich holatga muvaffaqiyatli qaytarildi!"); }}
               className="border-rose-500/20 bg-rose-500/5 text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 font-bold cursor-pointer text-xs transition-all"
             >
               Ma'lumotlarni Reset qilish
             </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* RENDER DYNAMIC SUB-TABS */}
       
@@ -296,26 +302,28 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                     />
                   </div>
 
-                  <select
-                    value={selectedGroupFilter}
-                    onChange={e => setSelectedGroupFilter(e.target.value)}
-                    className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-zinc-950/60 border border-slate-200 dark:border-zinc-800/80 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
-                  >
-                    <option value="" className="bg-white dark:bg-zinc-900">Barcha Guruhlar</option>
-                    {uniqueGroups.map(grp => (
-                      <option key={grp} value={grp} className="bg-white dark:bg-zinc-900">{grp}</option>
-                    ))}
-                  </select>
+                  <Select value={selectedGroupFilter} onValueChange={setSelectedGroupFilter}>
+                    <SelectTrigger className="h-9 w-44 bg-slate-50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800/80 text-xs font-bold text-slate-700 dark:text-slate-350">
+                      <SelectValue placeholder="Barcha Guruhlar" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
+                      <SelectItem value="ALL_GROUPS">Barcha Guruhlar</SelectItem>
+                      {uniqueGroups.map(grp => (
+                        <SelectItem key={grp} value={grp}>{grp}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                  <select
-                    value={selectedStatusFilter}
-                    onChange={e => setSelectedStatusFilter(e.target.value)}
-                    className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-zinc-950/60 border border-slate-200 dark:border-zinc-800/80 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
-                  >
-                    <option value="" className="bg-white dark:bg-zinc-900">Barcha Statuslar</option>
-                    <option value="Grant" className="bg-white dark:bg-zinc-900">Grant</option>
-                    <option value="Kontrakt" className="bg-white dark:bg-zinc-900">Kontrakt</option>
-                  </select>
+                  <Select value={selectedStatusFilter} onValueChange={setSelectedStatusFilter}>
+                    <SelectTrigger className="h-9 w-40 bg-slate-50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800/80 text-xs font-bold text-slate-700 dark:text-slate-355">
+                      <SelectValue placeholder="Barcha Statuslar" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800">
+                      <SelectItem value="ALL_STATUS">Barcha Statuslar</SelectItem>
+                      <SelectItem value="Grant">Grant</SelectItem>
+                      <SelectItem value="Kontrakt">Kontrakt</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </CardHeader>
