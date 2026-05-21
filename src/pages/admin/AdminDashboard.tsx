@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
-import { Activity, Award, Clock, Play, Shield, Sliders } from 'lucide-react';
+import { Activity, Award, Clock, Lightbulb, Play, Shield, Sliders } from 'lucide-react';
 import { useGlobalState } from '../../context/StateContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,10 +34,14 @@ export function AdminDashboard() {
   const [disciplineVal, setDisciplineVal] = useState('10');
   const [achievementPointsAward, setAchievementPointsAward] = useState('3.0');
   const [achievementComment, setAchievementComment] = useState("Nizom bo'yicha ball qo'shildi.");
+  const [ideaReviewMessage, setIdeaReviewMessage] = useState("Taklif ko'rib chiqildi. Keyingi bosqich uchun mas'ul jamoaga yuborildi.");
 
   const uniqueGroups = Array.from(new Set(state.students.map(s => s.group)));
   const pendingAchievements = state.students.flatMap(s =>
     s.achievements.filter(a => a.status === 'Kutilmoqda').map(a => ({ ...a, studentId: s.id, studentName: s.fullName }))
+  );
+  const pendingIdeas = state.students.flatMap(s =>
+    (s.ideas ?? []).filter(idea => idea.status === 'Kutilmoqda').map(idea => ({ ...idea, studentId: s.id, studentName: s.fullName }))
   );
   const filteredStudents = state.students.filter(student => {
     const matchesSearch = student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) || student.id.toLowerCase().includes(searchTerm.toLowerCase());
@@ -77,6 +81,19 @@ export function AdminDashboard() {
       }
     });
     toast.success(`Yutuq arizasi: ${status}`);
+  };
+
+  const handleReviewIdea = (studentId: string, ideaId: string, status: 'Tasdiqlandi' | 'Joriy qilindi' | 'Rad etildi') => {
+    dispatch({
+      type: 'REVIEW_IDEA',
+      payload: {
+        studentId,
+        ideaId,
+        status,
+        adminMessage: ideaReviewMessage
+      }
+    });
+    toast.success(`G'oya qarori: ${status}`);
   };
 
   const handleSaveBonuses = (e: React.FormEvent) => {
@@ -195,10 +212,10 @@ export function AdminDashboard() {
       {currentTab === 'queue' && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Award /> Yutuq va Sertifikatlarni Tasdiqlash Navbati</CardTitle>
-            <CardDescription>Talabalar tomonidan yuborilgan arizalar.</CardDescription>
+            <CardTitle className="flex items-center gap-2"><Award /> Arizalarni Tasdiqlash Navbati</CardTitle>
+            <CardDescription>Talabalar tomonidan yuborilgan yutuqlar, g'oyalar va yechimlar.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-8">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label>Taqdim etiladigan ball</Label>
@@ -209,6 +226,11 @@ export function AdminDashboard() {
                 <Input value={achievementComment} onChange={e => setAchievementComment(e.target.value)} />
               </div>
             </div>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium">Yutuq va sertifikatlar</h3>
+                <p className="text-sm text-muted-foreground">Sertifikatlar uchun ball admin tomonidan belgilanadi.</p>
+              </div>
             {pendingAchievements.length === 0 ? (
               <p className="text-muted-foreground">Kutilayotgan sertifikatlar yoki yutuqlar mavjud emas.</p>
             ) : (
@@ -236,6 +258,53 @@ export function AdminDashboard() {
                 </TableBody>
               </Table>
             )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Lightbulb className="size-4" />
+                <div>
+                  <h3 className="font-medium">G'oya va yechimlar</h3>
+                  <p className="text-sm text-muted-foreground">Tasdiqlangan g'oya +1 ball, joriy qilingan yechim +2 ball.</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Talabaga yuboriladigan xabar</Label>
+                <Textarea value={ideaReviewMessage} onChange={e => setIdeaReviewMessage(e.target.value)} />
+              </div>
+              {pendingIdeas.length === 0 ? (
+                <p className="text-muted-foreground">Kutilayotgan g'oya yoki yechimlar mavjud emas.</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Talaba</TableHead>
+                      <TableHead>G'oya</TableHead>
+                      <TableHead>Yo'nalish</TableHead>
+                      <TableHead>Muammo</TableHead>
+                      <TableHead className="text-right">Amallar</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingIdeas.map(idea => (
+                      <TableRow key={idea.id}>
+                        <TableCell>{idea.studentName}</TableCell>
+                        <TableCell className="font-medium">{idea.title}</TableCell>
+                        <TableCell><Badge variant="outline">{idea.area}</Badge></TableCell>
+                        <TableCell className="max-w-72 text-muted-foreground">{idea.problem}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <Button size="sm" onClick={() => handleReviewIdea(idea.studentId, idea.id, 'Tasdiqlandi')}>Tasdiqlash (+1)</Button>
+                            <Button size="sm" variant="secondary" onClick={() => handleReviewIdea(idea.studentId, idea.id, 'Joriy qilindi')}>Joriy qilindi (+2)</Button>
+                            <Button size="sm" variant="outline" onClick={() => handleReviewIdea(idea.studentId, idea.id, 'Rad etildi')}>Rad etish</Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react';
-import type { Student, AuditLog, StudentAchievement, MentorFeedback, TutorEvaluation, Subject, AttendanceLog } from '../types';
+import type { Student, AuditLog, StudentAchievement, StudentIdea, MentorFeedback, TutorEvaluation, Subject, AttendanceLog } from '../types';
 import { initialStudents, initialAuditLogs } from '../mock/seedData';
 import { recalculateStudentRating } from '../lib/rules';
 
@@ -19,6 +19,8 @@ export type Action =
   | { type: 'GRADE_ASSIGNMENT'; payload: { studentId: string; assignmentId: string; score: number; feedback: string } }
   | { type: 'UPLOAD_ACHIEVEMENT'; payload: { studentId: string; achievement: Omit<StudentAchievement, 'id' | 'status' | 'pointsAwarded' | 'submittedAt'> } }
   | { type: 'VERIFY_ACHIEVEMENT'; payload: { studentId: string; achievementId: string; status: 'Tasdiqlandi' | 'Rad etildi'; adminComment: string; pointsAwarded: number } }
+  | { type: 'SUBMIT_IDEA'; payload: { studentId: string; idea: Omit<StudentIdea, 'id' | 'status' | 'pointsAwarded' | 'submittedAt' | 'reviewedAt' | 'adminMessage'> } }
+  | { type: 'REVIEW_IDEA'; payload: { studentId: string; ideaId: string; status: 'Tasdiqlandi' | 'Joriy qilindi' | 'Rad etildi'; adminMessage: string } }
   | { type: 'ADD_FEEDBACK'; payload: { studentId: string; feedback: Omit<MentorFeedback, 'id' | 'date'> } }
   | { type: 'UPDATE_TUTOR_EVAL'; payload: { studentId: string; evaluation: TutorEvaluation } }
   | { type: 'UPDATE_STUDENT_BONUSES'; payload: { studentId: string; penaltyScore: number; recoveryScore: number; employmentScore: number; disciplineScore?: number } }
@@ -35,6 +37,15 @@ const initialState: State = {
   students: initialStudents,
   auditLogs: initialAuditLogs,
 };
+
+function normalizeStudent(student: Student): Student {
+  return {
+    ...student,
+    achievements: student.achievements ?? [],
+    ideas: student.ideas ?? [],
+    feedback: student.feedback ?? []
+  };
+}
 
 function addLog(logs: AuditLog[], role: 'Admin' | 'Mentor' | 'Student' | 'System', action: string, details: string, userId: string = 'System'): AuditLog[] {
   const newLog: AuditLog = {
@@ -238,6 +249,70 @@ function stateReducer(state: State, action: Action): State {
 
       return { ...state, students: updatedStudents, auditLogs: logs };
     }
+    case 'SUBMIT_IDEA': {
+      const { studentId, idea } = action.payload;
+      const newIdea: StudentIdea = {
+        ...idea,
+        id: `IDEA-${Date.now()}`,
+        status: 'Kutilmoqda',
+        pointsAwarded: 0,
+        submittedAt: new Date().toISOString().split('T')[0]!
+      };
+
+      const updatedStudents = state.students.map(student => {
+        if (student.id !== studentId) return student;
+        return recalculateStudentRating({
+          ...student,
+          ideas: [newIdea, ...(student.ideas ?? [])]
+        });
+      });
+
+      const st = state.students.find(s => s.id === studentId);
+      const logs = addLog(
+        state.auditLogs,
+        'Student',
+        "Yangi g'oya yuborildi",
+        `Talaba ${st?.fullName} universitet uchun yangi yechim taklif qildi: '${idea.title}'. Admin ko'rib chiqishi kutilmoqda.`,
+        studentId
+      );
+
+      return { ...state, students: updatedStudents, auditLogs: logs };
+    }
+    case 'REVIEW_IDEA': {
+      const { studentId, ideaId, status, adminMessage } = action.payload;
+      const pointsAwarded = status === 'Joriy qilindi' ? 2 : status === 'Tasdiqlandi' ? 1 : 0;
+
+      const updatedStudents = state.students.map(student => {
+        if (student.id !== studentId) return student;
+        const updatedIdeas = (student.ideas ?? []).map(idea => {
+          if (idea.id !== ideaId) return idea;
+          return {
+            ...idea,
+            status,
+            adminMessage,
+            pointsAwarded,
+            reviewedAt: new Date().toISOString().split('T')[0]!
+          };
+        });
+
+        return recalculateStudentRating({
+          ...student,
+          ideas: updatedIdeas
+        });
+      });
+
+      const st = state.students.find(s => s.id === studentId);
+      const idea = st?.ideas?.find(item => item.id === ideaId);
+      const logs = addLog(
+        state.auditLogs,
+        'Admin',
+        `G'oya ${status}`,
+        `Administrator ${st?.fullName} talabasining '${idea?.title}' g'oyasini ko'rib chiqdi. Qaror: ${status} (+${pointsAwarded} ball). Izoh: ${adminMessage}`,
+        'ADMIN-1'
+      );
+
+      return { ...state, students: updatedStudents, auditLogs: logs };
+    }
     case 'ADD_FEEDBACK': {
       const { studentId, feedback } = action.payload;
       const newFeedback: MentorFeedback = {
@@ -393,6 +468,7 @@ function stateReducer(state: State, action: Action): State {
             }
           ],
           achievements: [],
+          ideas: [],
           tutorEvaluation: {
             corporateCulture: 1,
             socialActivity: 1,
@@ -494,7 +570,10 @@ export const StateProvider = ({ children }: { children: ReactNode }) => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          return parsed as State;
+          return {
+            ...parsed,
+            students: (parsed.students ?? initialState.students).map((student: Student) => recalculateStudentRating(normalizeStudent(student)))
+          } as State;
         } catch (e) {
           console.error("Error loading localStorage state:", e);
         }

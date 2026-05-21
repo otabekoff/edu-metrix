@@ -39,9 +39,15 @@ export function recalculateStudentRating(student: Omit<Student, 'academicScore' 
   assignmentScore = Math.min(15, Math.max(0, assignmentScore));
 
   // 4. Activity Score (Max 10)
-  // Sum points for all approved (Tasdiqlandi) achievements
-  const approvedAchievements = student.achievements.filter(a => a.status === 'Tasdiqlandi');
-  let activityScore = approvedAchievements.reduce((sum, a) => sum + a.pointsAwarded, 0);
+  // Sum points for approved achievements and university improvement ideas.
+  const approvedAchievements = (student.achievements ?? []).filter(a => a.status === 'Tasdiqlandi');
+  const achievementScore = approvedAchievements.reduce((sum, a) => sum + a.pointsAwarded, 0);
+  const ideaScore = (student.ideas ?? []).reduce((sum, idea) => {
+    if (idea.status === 'Joriy qilindi') return sum + 2;
+    if (idea.status === 'Tasdiqlandi') return sum + 1;
+    return sum;
+  }, 0);
+  let activityScore = achievementScore + ideaScore;
   activityScore = Math.min(10, activityScore);
 
   // 5. Tutor Score (Max 5)

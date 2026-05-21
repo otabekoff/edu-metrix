@@ -1,7 +1,11 @@
-import type { Student, AuditLog } from '../types';
+import type { Student, AuditLog, StudentIdea } from '../types';
 import { recalculateStudentRating } from '../lib/rules';
 
-const initialRawStudents: Omit<Student, 'academicScore' | 'attendanceScore' | 'assignmentScore' | 'activityScore' | 'tutorScore' | 'totalBaseScore' | 'finalScore' | 'isGrantCancelled' | 'riskLevel'>[] = [
+type RawStudent = Omit<Student, 'academicScore' | 'attendanceScore' | 'assignmentScore' | 'activityScore' | 'tutorScore' | 'totalBaseScore' | 'finalScore' | 'isGrantCancelled' | 'riskLevel' | 'ideas'> & {
+  ideas?: StudentIdea[];
+};
+
+const initialRawStudents: RawStudent[] = [
   {
     id: "ST-2026-8941",
     first_name: "Asilbek",
@@ -84,6 +88,21 @@ const initialRawStudents: Omit<Student, 'academicScore' | 'attendanceScore' | 'a
         pointsAwarded: 5.0,
         status: "Kutilmoqda",
         submittedAt: "2026-05-20"
+      }
+    ],
+    ideas: [
+      {
+        id: "IDEA-501",
+        title: "Kutubxona bandligini QR orqali kuzatish",
+        area: "Technology",
+        problem: "Talabalar kutubxonada bo'sh joy bor-yo'qligini bilmay vaqt yo'qotadi.",
+        solution: "Kirish joyiga QR chek-in va dashboard o'rnatib, real vaqt bandlik ko'rsatkichini ko'rsatish.",
+        impact: "Kutubxona oqimini tartiblaydi va talabalar vaqtini tejaydi.",
+        pointsAwarded: 1,
+        status: "Tasdiqlandi",
+        submittedAt: "2026-05-18",
+        reviewedAt: "2026-05-19",
+        adminMessage: "Pilot formatida sinash uchun tasdiqlandi."
       }
     ],
     tutorEvaluation: {
@@ -433,7 +452,10 @@ const initialRawStudents: Omit<Student, 'academicScore' | 'attendanceScore' | 'a
   }
 ];
 
-export const initialStudents: Student[] = initialRawStudents.map(student => recalculateStudentRating(student));
+export const initialStudents: Student[] = initialRawStudents.map(student => recalculateStudentRating({
+  ...student,
+  ideas: student.ideas ?? []
+}));
 
 export const initialAuditLogs: AuditLog[] = [
   {

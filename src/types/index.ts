@@ -44,6 +44,20 @@ export interface StudentAchievement {
   adminComment?: string;
 }
 
+export interface StudentIdea {
+  id: string;
+  title: string;
+  area: 'Campus' | 'Academic' | 'Technology' | 'Community' | 'Process' | 'Other';
+  problem: string;
+  solution: string;
+  impact?: string;
+  pointsAwarded: number;
+  status: 'Kutilmoqda' | 'Tasdiqlandi' | 'Joriy qilindi' | 'Rad etildi';
+  submittedAt: string;
+  reviewedAt?: string;
+  adminMessage?: string;
+}
+
 export interface TutorEvaluation {
   corporateCulture: number; // 0-1
   socialActivity: number;   // 0-1
@@ -95,6 +109,7 @@ export interface Student {
   subjects: Subject[];
   assignments: Assignment[];
   achievements: StudentAchievement[];
+  ideas: StudentIdea[];
   tutorEvaluation: TutorEvaluation;
   feedback: MentorFeedback[];
 

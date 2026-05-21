@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import { useGlobalState } from '../../context/StateContext';
-import { Award, Bell, CheckCircle2, Lock, MessageSquare, Send, User } from 'lucide-react';
+import { Award, Bell, CheckCircle2, Lightbulb, Lock, MessageSquare, Send, Trophy } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,11 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
   const [achCategory, setAchCategory] = useState<'Startup' | 'International IT' | 'National IT' | 'Mentorlik' | 'Online Kurs' | 'Offline Kurs' | 'Volontyorlik' | 'Soft Skills' | 'Networking' | 'Boshqa'>('International IT');
   const [achDesc, setAchDesc] = useState('');
   const [achLink, setAchLink] = useState('');
+  const [ideaTitle, setIdeaTitle] = useState('');
+  const [ideaArea, setIdeaArea] = useState<'Campus' | 'Academic' | 'Technology' | 'Community' | 'Process' | 'Other'>('Campus');
+  const [ideaProblem, setIdeaProblem] = useState('');
+  const [ideaSolution, setIdeaSolution] = useState('');
+  const [ideaImpact, setIdeaImpact] = useState('');
 
   if (!student) {
     return <p className="text-muted-foreground">Talaba topilmadi. Bosh sahifaga qaytib rolni qayta tanlang.</p>;
@@ -37,6 +42,9 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
 
   const sortedStudents = [...state.students].sort((a, b) => b.finalScore - a.finalScore);
   const ratingRank = sortedStudents.findIndex(s => s.id === student.id) + 1;
+  const rankPercentile = sortedStudents.length > 1
+    ? Math.round(((sortedStudents.length - ratingRank) / (sortedStudents.length - 1)) * 100)
+    : 100;
 
   const handleUploadAchievement = (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +67,31 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
     setAchDesc('');
     setAchLink('');
     toast.success("Yutuq topshirildi! Admin tasdiqlashi bilan reytingingiz yangilanadi.");
+  };
+
+  const handleSubmitIdea = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ideaTitle.trim() || !ideaProblem.trim() || !ideaSolution.trim()) return;
+
+    dispatch({
+      type: 'SUBMIT_IDEA',
+      payload: {
+        studentId: student.id,
+        idea: {
+          title: ideaTitle,
+          area: ideaArea,
+          problem: ideaProblem,
+          solution: ideaSolution,
+          impact: ideaImpact || undefined
+        }
+      }
+    });
+
+    setIdeaTitle('');
+    setIdeaProblem('');
+    setIdeaSolution('');
+    setIdeaImpact('');
+    toast.success("G'oya yuborildi! Tasdiqlansa +1, joriy qilinsa +2 ball qo'shiladi.");
   };
 
   const handleGenerateToken = () => {
@@ -91,7 +124,23 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
                   <Badge variant={student.status === 'Grant' ? 'default' : 'secondary'}>{student.status}</Badge>
                 </CardTitle>
                 <CardDescription>Guruh: {student.group} | ID: {student.id}</CardDescription>
-                <CardDescription>Leaderboard: #{ratingRank}-o'rin | Yakuniy Reyting: {student.finalScore} / 110.0</CardDescription>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <div className="rounded-md border bg-muted/30 px-3 py-2">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Trophy className="size-3.5" />
+                      Leaderboard
+                    </div>
+                    <div className="text-lg font-semibold">#{ratingRank}-o'rin</div>
+                  </div>
+                  <div className="rounded-md border bg-muted/30 px-3 py-2">
+                    <div className="text-xs text-muted-foreground">Yakuniy reyting</div>
+                    <div className="text-lg font-semibold">{student.finalScore} / 110</div>
+                  </div>
+                  <div className="rounded-md border bg-muted/30 px-3 py-2">
+                    <div className="text-xs text-muted-foreground">Top ko'rsatkich</div>
+                    <div className="text-lg font-semibold">{rankPercentile}%</div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -232,72 +281,152 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
       )}
 
       {currentTab === 'achievements' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-1">
-            <form onSubmit={handleUploadAchievement} className="contents">
-              <CardHeader>
-                <CardTitle>Yangi Yutuq Arizasi</CardTitle>
-                <CardDescription>Sertifikat yoki yutuq ma'lumotlarini yuboring.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Nomi</Label>
-                  <Input value={achTitle} onChange={e => setAchTitle(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Toifa</Label>
-                  <Select value={achCategory} onValueChange={(value: typeof achCategory) => setAchCategory(value)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {['Startup', 'International IT', 'National IT', 'Mentorlik', 'Online Kurs', 'Offline Kurs', 'Volontyorlik', 'Soft Skills', 'Networking', 'Boshqa'].map(cat => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Tavsif</Label>
-                  <Textarea value={achDesc} onChange={e => setAchDesc(e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Havola</Label>
-                  <Input value={achLink} onChange={e => setAchLink(e.target.value)} />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full"><Send /> Yuborish</Button>
-              </CardFooter>
-            </form>
-          </Card>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="space-y-6">
+            <Card>
+              <form onSubmit={handleUploadAchievement} className="contents">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Award /> Yangi Yutuq Arizasi</CardTitle>
+                  <CardDescription>Sertifikat yoki yutuq ma'lumotlarini yuboring.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Nomi</Label>
+                    <Input value={achTitle} onChange={e => setAchTitle(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Toifa</Label>
+                    <Select value={achCategory} onValueChange={(value: typeof achCategory) => setAchCategory(value)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {['Startup', 'International IT', 'National IT', 'Mentorlik', 'Online Kurs', 'Offline Kurs', 'Volontyorlik', 'Soft Skills', 'Networking', 'Boshqa'].map(cat => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Tavsif</Label>
+                    <Textarea value={achDesc} onChange={e => setAchDesc(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Havola</Label>
+                    <Input value={achLink} onChange={e => setAchLink(e.target.value)} />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" className="w-full"><Send /> Yuborish</Button>
+                </CardFooter>
+              </form>
+            </Card>
 
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Yutuqlar va Sertifikatlar</CardTitle>
-              <CardDescription>Yuborilgan arizalar va ularning holati.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nomi</TableHead>
-                    <TableHead>Toifa</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ball</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {student.achievements.map(achievement => (
-                    <TableRow key={achievement.id}>
-                      <TableCell className="font-medium">{achievement.title}</TableCell>
-                      <TableCell>{achievement.category}</TableCell>
-                      <TableCell><Badge variant="outline">{achievement.status}</Badge></TableCell>
-                      <TableCell className="text-right">{achievement.pointsAwarded}</TableCell>
+            <Card>
+              <form onSubmit={handleSubmitIdea} className="contents">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Lightbulb /> G'oya yoki Yechim Taklifi</CardTitle>
+                  <CardDescription>Tasdiqlangan g'oya +1 ball, joriy qilingan yechim +2 ball.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Nomi</Label>
+                    <Input value={ideaTitle} onChange={e => setIdeaTitle(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Yo'nalish</Label>
+                    <Select value={ideaArea} onValueChange={(value: typeof ideaArea) => setIdeaArea(value)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {['Campus', 'Academic', 'Technology', 'Community', 'Process', 'Other'].map(area => (
+                          <SelectItem key={area} value={area}>{area}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Muammo</Label>
+                    <Textarea value={ideaProblem} onChange={e => setIdeaProblem(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Yechim</Label>
+                    <Textarea value={ideaSolution} onChange={e => setIdeaSolution(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Kutilayotgan ta'sir</Label>
+                    <Textarea value={ideaImpact} onChange={e => setIdeaImpact(e.target.value)} />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" className="w-full"><Send /> G'oyani yuborish</Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </div>
+
+          <div className="space-y-6 lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Yutuqlar va Sertifikatlar</CardTitle>
+                <CardDescription>Yuborilgan arizalar va ularning holati.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nomi</TableHead>
+                      <TableHead>Toifa</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ball</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {student.achievements.map(achievement => (
+                      <TableRow key={achievement.id}>
+                        <TableCell className="font-medium">{achievement.title}</TableCell>
+                        <TableCell>{achievement.category}</TableCell>
+                        <TableCell><Badge variant="outline">{achievement.status}</Badge></TableCell>
+                        <TableCell className="text-right">{achievement.pointsAwarded}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>G'oyalar va Yechimlar</CardTitle>
+                <CardDescription>Universitet hayotini yaxshilash bo'yicha takliflaringiz.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {(student.ideas ?? []).length === 0 ? (
+                  <p className="text-muted-foreground">Hali g'oya yuborilmagan.</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nomi</TableHead>
+                        <TableHead>Yo'nalish</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Admin xabari</TableHead>
+                        <TableHead className="text-right">Ball</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(student.ideas ?? []).map(idea => (
+                        <TableRow key={idea.id}>
+                          <TableCell className="font-medium">{idea.title}</TableCell>
+                          <TableCell>{idea.area}</TableCell>
+                          <TableCell><Badge variant="outline">{idea.status}</Badge></TableCell>
+                          <TableCell className="max-w-64 text-muted-foreground">{idea.adminMessage || '-'}</TableCell>
+                          <TableCell className="text-right">{idea.pointsAwarded}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
 

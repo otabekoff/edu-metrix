@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalState, type UserRole } from '../context/StateContext';
 import { Outlet, useNavigate, useLocation, useParams } from 'react-router';
-import { 
-  Award, BookOpen, Shield, GraduationCap, LayoutDashboard, 
+import {
+  Award, BookOpen, Shield, GraduationCap, LayoutDashboard,
   LogOut, Activity, Calendar, Terminal, Sliders, UserCheck,
   Sun, Moon, Bell, AlertTriangle, Clock
 } from 'lucide-react';
@@ -51,7 +51,26 @@ export function AppLayout() {
     return 'dark';
   });
 
+  const disableThemeChangeTransitions = () => {
+    if (typeof document === 'undefined') return;
+
+    const style = document.createElement('style');
+    style.appendChild(document.createTextNode(`
+      *, *::before, *::after {
+        transition: none !important;
+      }
+    `));
+    document.head.appendChild(style);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        style.remove();
+      });
+    });
+  };
+
   const toggleTheme = () => {
+    disableThemeChangeTransitions();
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
     if (typeof window !== 'undefined') {
@@ -78,7 +97,7 @@ export function AppLayout() {
     } else if (path.startsWith('/admin')) {
       detectedRole = 'Admin';
     }
-    
+
     if (state.activeRole !== detectedRole) {
       dispatch({ type: 'SWITCH_ROLE', payload: detectedRole });
     }
@@ -91,6 +110,8 @@ export function AppLayout() {
   const selectionTimeLabel = selectionDaysLeft > 0
     ? `${selectionDaysLeft} kun qoldi`
     : 'Saralash yakunlandi';
+  const pendingAchievementsCount = state.students.flatMap(s => s.achievements).filter(a => a.status === 'Kutilmoqda').length;
+  const pendingIdeasCount = state.students.flatMap(s => s.ideas ?? []).filter(idea => idea.status === 'Kutilmoqda').length;
   const notifications = [
     {
       title: 'Grant saralash muddati',
@@ -103,8 +124,8 @@ export function AppLayout() {
         : 'Minimal davomat talabi 80%.',
     },
     {
-      title: 'Yutuqlar navbati',
-      description: `${state.students.flatMap(s => s.achievements).filter(a => a.status === 'Kutilmoqda').length} ta sertifikat admin tasdig'ini kutmoqda.`,
+      title: 'Faollik navbati',
+      description: `${pendingAchievementsCount} ta sertifikat va ${pendingIdeasCount} ta g'oya admin tasdig'ini kutmoqda.`,
     },
   ];
 
@@ -114,7 +135,7 @@ export function AppLayout() {
       const titles: Record<string, string> = {
         overview: 'Talaba Boshqaruv Paneli',
         courses: 'Fanlar va Topshiriqlar',
-        achievements: 'Yutuqlar va Sertifikatlar Portfolioli',
+        achievements: "Yutuqlar, G'oyalar va Yechimlar",
         scholarship: 'Guruhlararo Grant Reytingi',
         feedback: 'Mentor va Tyutor Fikr-Mulohazalari',
         settings: 'Hisob Sozlamalari (2FA / Telegram)'
@@ -131,7 +152,7 @@ export function AppLayout() {
     if (state.activeRole === 'Admin') {
       const titles: Record<string, string> = {
         matrix: '16-Kolonnali Grant Reyting Matrixi',
-        queue: 'Yutuq Arizalarini Tasdiqlash Navbati',
+        queue: "Yutuq va G'oya Arizalari Navbati",
         modifiers: 'Jarima va Bonus Ballar Kiritish',
         faceid: 'FaceID Attendance simulated API Playground'
       };
@@ -150,7 +171,7 @@ export function AppLayout() {
             <SidebarHeader>
               <SidebarMenuButton
                 size="lg"
-                onClick={() => navigate('/')}
+                // onClick={() => navigate('/')}
                 tooltip="Edumetric"
               >
                 <img
@@ -172,29 +193,29 @@ export function AppLayout() {
                   <SidebarMenuButton size="lg" tooltip={state.activeRole}>
                     <Avatar className="size-8">
                       <AvatarImage
-                    src={
-                      state.activeRole === 'Student' && student ? student.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" :
-                      state.activeRole === 'Mentor' ? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100" : 
-                      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=100"
-                    }
-                    alt="Avatar"
-                  />
+                        src={
+                          state.activeRole === 'Student' && student ? student.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100" :
+                            state.activeRole === 'Mentor' ? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100" :
+                              "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?q=80&w=100"
+                        }
+                        alt="Avatar"
+                      />
                       <AvatarFallback>{state.activeRole.slice(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
                       <span className="font-medium">
-                    {state.activeRole === 'Student' && student ? student.fullName :
-                     state.activeRole === 'Mentor' ? "D. Eshmuradov" : "Admin-1"}
+                        {state.activeRole === 'Student' && student ? student.fullName :
+                          state.activeRole === 'Mentor' ? "D. Eshmuradov" : "Admin-1"}
                       </span>
                       <span className="block text-xs text-muted-foreground">
-                    {state.activeRole === 'Student' && student ? `${student.group} • Talaba` :
-                     state.activeRole === 'Mentor' ? "IF Kurs Mentori" : "PDP Bosh Admini"}
+                        {state.activeRole === 'Student' && student ? `${student.group} • Talaba` :
+                          state.activeRole === 'Mentor' ? "IF Kurs Mentori" : "PDP Bosh Admini"}
                       </span>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
-              <SidebarGroupContent className="px-2 group-data-[collapsible=icon]:hidden">
+              <SidebarGroupContent className="mt-2 px-2 group-data-[collapsible=icon]:hidden">
                 <Badge variant="outline">FaceID API Gateway: Connected</Badge>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -209,7 +230,7 @@ export function AppLayout() {
                     {state.activeRole === 'Student' && [
                       { id: 'overview', label: 'Boshqaruv Paneli', icon: LayoutDashboard },
                       { id: 'courses', label: 'Fanlar & Vazifalar', icon: BookOpen },
-                      { id: 'achievements', label: 'Yutuqlar Portfolioli', icon: Award },
+                      { id: 'achievements', label: "Yutuqlar & G'oyalar", icon: Award },
                       { id: 'scholarship', label: 'Grant Monitoring', icon: Activity },
                       { id: 'feedback', label: 'Mentor Fikrlari', icon: UserCheck },
                       { id: 'settings', label: 'Sozlamalar', icon: Sliders },
@@ -254,7 +275,7 @@ export function AppLayout() {
                     {/* ADMIN NAVIGATION LINKS */}
                     {state.activeRole === 'Admin' && [
                       { id: 'matrix', label: '16-Kolonnali Jurnal', icon: LayoutDashboard },
-                      { id: 'queue', label: 'Yutuqlar Navbati', icon: Award },
+                      { id: 'queue', label: "Yutuqlar & G'oyalar", icon: Award },
                       { id: 'modifiers', label: 'Jarima & Bonuslar', icon: Sliders },
                       { id: 'faceid', label: 'FaceID Playground', icon: Terminal },
                     ].map(item => {
@@ -310,7 +331,7 @@ export function AppLayout() {
 
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     tooltip="Bosh sahifaga qaytish"
                     onClick={() => navigate('/')}
                   >
@@ -325,12 +346,12 @@ export function AppLayout() {
 
         {/* Main Content Area (Layout padding managed by SidebarInset) */}
         <SidebarInset>
-          
+
           {/* Modern sticky breadcrumbs header */}
           {state.activeRole !== 'Guest' && (
             <header className="sticky top-0 z-40 w-full border-b bg-background">
               <div className="min-h-16 px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
-                
+
                 {/* Left Side: Breadcrumb details with toggle trigger */}
                 <div className="flex items-center gap-3">
                   <SidebarTrigger />

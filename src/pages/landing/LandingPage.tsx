@@ -7,7 +7,9 @@ import {
   BookOpen,
   CheckCircle2,
   GraduationCap,
+  Lightbulb,
   Shield,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,10 +31,10 @@ export function LandingPage() {
   };
 
   const stats = [
-    ['1,240+', 'Talabalar'],
+    ['1,240+', 'Talaba profili'],
     ['94.8%', "O'rtacha davomat"],
-    ['45+', 'Mentorlar'],
-    ['87.5%', 'Bandlik'],
+    ['45+', 'Mentor va tyutor'],
+    ['110', 'Yakuniy ball modeli'],
   ];
 
   const roles = [
@@ -73,8 +75,8 @@ export function LandingPage() {
 
   return (
     <div className="w-full">
-      <section className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-[1.1fr_0.9fr] md:px-6 md:py-16">
-        <div className="space-y-8">
+      <section className="mx-auto max-w-6xl space-y-8 px-4 py-8 md:px-6 md:py-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <img src={logoUrl} alt="PDP University" className="size-10 rounded-md object-contain" />
             <div>
@@ -82,77 +84,127 @@ export function LandingPage() {
               <div className="text-sm text-muted-foreground">PDP University grant monitoring</div>
             </div>
           </div>
-
-          <div className="space-y-5">
-            <Badge variant="outline">Grant Nizomi • FaceID • Mentor feedback</Badge>
-            <div className="space-y-4">
-              <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
-                Grant reytingini bir joyda boshqaring.
-              </h1>
-              <p className="max-w-2xl text-lg text-muted-foreground">
-                Edumetric talaba reytingi, davomat, baholash, sertifikat tasdiqlash va audit jarayonlarini shadcn uslubidagi yagona ish paneliga jamlaydi.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg" onClick={() => navigate('/login')}>
-              Tizimga kirish
-              <ArrowRight />
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => document.getElementById('roles')?.scrollIntoView({ behavior: 'smooth' })}>
-              Rollarni ko'rish
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {stats.map(([value, label]) => (
-              <Card key={label}>
-                <CardHeader className="p-4">
-                  <CardTitle className="text-xl">{value}</CardTitle>
-                  <CardDescription>{label}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => navigate('/login')}>Sign in</Button>
+            <Button onClick={() => handleSelectRole('Student')}>Demo ochish</Button>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity />
-              Jonli grant matrixi
-            </CardTitle>
-            <CardDescription>Admin ko'radigan qisqa reyting namunasi.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Talaba</TableHead>
-                  <TableHead>Guruh</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ball</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {previewRows.map(([name, group, status, score, risk]) => (
-                  <TableRow key={name}>
-                    <TableCell>
-                      <div className="font-medium">{name}</div>
-                      <div className="text-xs text-muted-foreground">Risk: {risk}</div>
-                    </TableCell>
-                    <TableCell>{group}</TableCell>
-                    <TableCell>
-                      <Badge variant={status === 'Grant' ? 'default' : 'secondary'}>{status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{score}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <div className="space-y-6">
+            <Badge variant="outline">Grant nizomi • FaceID import • Mentor feedback • G'oyalar</Badge>
+            <div className="space-y-3">
+              <h1 className="max-w-3xl text-4xl font-semibold tracking-tight md:text-5xl">
+                Grant qarorlarini ko'rinadigan, tushunarli va auditli qiling.
+              </h1>
+              <p className="max-w-2xl text-lg text-muted-foreground">
+                Edumetric talaba reytingi, davomat, baholash, sertifikat tasdiqlash, g'oya takliflari va admin qarorlarini bitta boshqaruv paneliga jamlaydi.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button size="lg" onClick={() => navigate('/login')}>
+                Tizimga kirish
+                <ArrowRight />
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => document.getElementById('roles')?.scrollIntoView({ behavior: 'smooth' })}>
+                Rollarni ko'rish
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity />
+                      Jonli grant matrixi
+                    </CardTitle>
+                    <CardDescription>Admin ko'radigan qisqa reyting namunasi.</CardDescription>
+                  </div>
+                  <Badge variant="secondary">Real-time model</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Talaba</TableHead>
+                      <TableHead>Guruh</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Ball</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {previewRows.map(([name, group, status, score, risk]) => (
+                      <TableRow key={name}>
+                        <TableCell>
+                          <div className="font-medium">{name}</div>
+                          <div className="text-xs text-muted-foreground">Risk: {risk}</div>
+                        </TableCell>
+                        <TableCell>{group}</TableCell>
+                        <TableCell>
+                          <Badge variant={status === 'Grant' ? 'default' : 'secondary'}>{status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">{score}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
+      <section className="mx-auto max-w-6xl space-y-6 px-4 py-12 md:px-6">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Platforma nimalarni birlashtiradi?</h2>
+          <p className="text-muted-foreground">Grant monitoringi uchun eng muhim uchta oqim.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Trophy /> Reyting</CardTitle>
+              <CardDescription>GPA, davomat va vazifalar.</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Award /> Portfolio</CardTitle>
+              <CardDescription>Sertifikat va yutuq tasdiqlari.</CardDescription>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Lightbulb /> G'oyalar</CardTitle>
+              <CardDescription>Takliflar uchun +1/+2 ball.</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </section>
+
+      <Separator />
+
+      <section className="mx-auto max-w-6xl space-y-6 px-4 py-12 md:px-6">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Tizim ko'rsatkichlari</h2>
+          <p className="text-muted-foreground">Real vaqt asosida ishlovchi ko'rsatkichlar.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {stats.map(([value, label]) => (
+            <Card key={label}>
+              <CardHeader>
+                <CardTitle>{value}</CardTitle>
+                <CardDescription>{label}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
       </section>
 
       <Separator />
@@ -223,10 +275,10 @@ export function LandingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={() => navigate('/login')}>Sign in</Button>
-            <Button variant="outline" onClick={() => navigate('/signup')}>Sign up</Button>
-            <Button variant="outline" onClick={() => handleSelectRole('Mentor')}>Mentor oqimi</Button>
-            <Button variant="outline" onClick={() => handleSelectRole('Admin')}>Admin oqimi</Button>
+            <Button onClick={() => navigate('/login')}>Kirish</Button>
+            <Button variant="outline" onClick={() => navigate('/signup')}>Ro'yxatdan o'tish</Button>
+            <Button variant="outline" onClick={() => handleSelectRole('Mentor')}>Mentor oynasi</Button>
+            <Button variant="outline" onClick={() => handleSelectRole('Admin')}>Admin oynasi</Button>
           </CardContent>
         </Card>
       </section>
