@@ -79,7 +79,17 @@ function AuditDataTable({ data }: { data: AuditTableRow[] }) {
     {
       accessorKey: 'details',
       header: 'Izoh',
-      cell: ({ row }) => <div className="max-w-xl text-muted-foreground">{row.getValue('details')}</div>,
+      cell: ({ row }) => {
+        const details = (row.getValue('details') as string) || '';
+        return (
+          <div
+            className="max-w-50 sm:max-w-75 md:max-w-100 truncate text-muted-foreground"
+            title={details}
+          >
+            {details}
+          </div>
+        );
+      },
     },
     {
       accessorKey: 'timestamp',
@@ -584,7 +594,7 @@ export function AdminDashboard() {
               <CardTitle className="flex items-center gap-2"><Clock /> Gateway Logs</CardTitle>
               <CardDescription>Router ulanishlari va tizim tekshiruvlari.</CardDescription>
             </CardHeader>
-            <CardContent className="max-h-[420px] space-y-2 overflow-auto">
+            <CardContent className="max-h-105 space-y-2 overflow-auto">
               {apiConsoleLogs.map((log, index) => (
                 <pre key={index} className="rounded-md border bg-muted p-2 text-xs whitespace-pre-wrap">{log}</pre>
               ))}

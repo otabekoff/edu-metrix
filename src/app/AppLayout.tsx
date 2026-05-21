@@ -349,7 +349,7 @@ export function AppLayout() {
 
           {/* Modern sticky breadcrumbs header */}
           {state.activeRole !== 'Guest' && (
-            <header className="sticky top-0 z-[60] w-full border-b bg-background">
+            <header className="sticky top-0 z-40 w-full border-b bg-background">
               <div className="min-h-16 px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
 
                 {/* Left Side: Breadcrumb details with toggle trigger */}

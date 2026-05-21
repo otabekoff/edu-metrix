@@ -13,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 
 interface StudentDashboardProps {
@@ -98,6 +99,21 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
     const randomToken = `PDP-${Math.floor(100 + Math.random() * 900)}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
     dispatch({ type: 'TOGGLE_TELEGRAM', payload: { studentId: student.id, sync: true, token: randomToken } });
   };
+
+  const totalAchievements = student.achievements.length;
+  const approvedAchievementsPoints = student.achievements
+    .filter(a => a.status === 'Tasdiqlandi')
+    .reduce((sum, a) => sum + (a.pointsAwarded || 0), 0);
+
+  const totalIdeas = (student.ideas ?? []).length;
+  const approvedIdeasPoints = (student.ideas ?? [])
+    .filter(i => i.status === 'Tasdiqlandi' || i.status === 'Joriy qilindi')
+    .reduce((sum, i) => sum + (i.pointsAwarded || 0), 0);
+
+  const totalPoints = approvedAchievementsPoints + approvedIdeasPoints;
+
+  const pendingCount = student.achievements.filter(a => a.status === 'Kutilmoqda').length +
+    (student.ideas ?? []).filter(i => i.status === 'Kutilmoqda').length;
 
   const scoreRows = [
     ['Akademik Natija (GPA)', student.academicScore, 40],
@@ -281,152 +297,241 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
       )}
 
       {currentTab === 'achievements' && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="space-y-6">
-            <Card>
-              <form onSubmit={handleUploadAchievement} className="contents">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Award /> Yangi Yutuq Arizasi</CardTitle>
-                  <CardDescription>Sertifikat yoki yutuq ma'lumotlarini yuboring.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Nomi</Label>
-                    <Input value={achTitle} onChange={e => setAchTitle(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Toifa</Label>
-                    <Select value={achCategory} onValueChange={(value: typeof achCategory) => setAchCategory(value)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {['Startup', 'International IT', 'National IT', 'Mentorlik', 'Online Kurs', 'Offline Kurs', 'Volontyorlik', 'Soft Skills', 'Networking', 'Boshqa'].map(cat => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Tavsif</Label>
-                    <Textarea value={achDesc} onChange={e => setAchDesc(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Havola</Label>
-                    <Input value={achLink} onChange={e => setAchLink(e.target.value)} />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full"><Send /> Yuborish</Button>
-                </CardFooter>
-              </form>
-            </Card>
-
-            <Card>
-              <form onSubmit={handleSubmitIdea} className="contents">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Lightbulb /> G'oya yoki Yechim Taklifi</CardTitle>
-                  <CardDescription>Tasdiqlangan g'oya +1 ball, joriy qilingan yechim +2 ball.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Nomi</Label>
-                    <Input value={ideaTitle} onChange={e => setIdeaTitle(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Yo'nalish</Label>
-                    <Select value={ideaArea} onValueChange={(value: typeof ideaArea) => setIdeaArea(value)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {['Campus', 'Academic', 'Technology', 'Community', 'Process', 'Other'].map(area => (
-                          <SelectItem key={area} value={area}>{area}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Muammo</Label>
-                    <Textarea value={ideaProblem} onChange={e => setIdeaProblem(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Yechim</Label>
-                    <Textarea value={ideaSolution} onChange={e => setIdeaSolution(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Kutilayotgan ta'sir</Label>
-                    <Textarea value={ideaImpact} onChange={e => setIdeaImpact(e.target.value)} />
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" className="w-full"><Send /> G'oyani yuborish</Button>
-                </CardFooter>
-              </form>
-            </Card>
-          </div>
-
-          <div className="space-y-6 lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Yutuqlar va Sertifikatlar</CardTitle>
-                <CardDescription>Yuborilgan arizalar va ularning holati.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nomi</TableHead>
-                      <TableHead>Toifa</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Ball</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {student.achievements.map(achievement => (
-                      <TableRow key={achievement.id}>
-                        <TableCell className="font-medium">{achievement.title}</TableCell>
-                        <TableCell>{achievement.category}</TableCell>
-                        <TableCell><Badge variant="outline">{achievement.status}</Badge></TableCell>
-                        <TableCell className="text-right">{achievement.pointsAwarded}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Stats Cards Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="relative overflow-hidden border bg-linear-to-br from-indigo-500/10 via-purple-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-indigo-500/30">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-indigo-500/10 blur-xl"></div>
+              <CardContent className="p-5 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Yutuqlar</p>
+                  <h3 className="text-2xl font-bold tracking-tight">{totalAchievements} ta</h3>
+                </div>
+                <div className="p-3 bg-indigo-500/15 text-indigo-500 rounded-2xl">
+                  <Award className="size-6" />
+                </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>G'oyalar va Yechimlar</CardTitle>
-                <CardDescription>Universitet hayotini yaxshilash bo'yicha takliflaringiz.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {(student.ideas ?? []).length === 0 ? (
-                  <p className="text-muted-foreground">Hali g'oya yuborilmagan.</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nomi</TableHead>
-                        <TableHead>Yo'nalish</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Admin xabari</TableHead>
-                        <TableHead className="text-right">Ball</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {(student.ideas ?? []).map(idea => (
-                        <TableRow key={idea.id}>
-                          <TableCell className="font-medium">{idea.title}</TableCell>
-                          <TableCell>{idea.area}</TableCell>
-                          <TableCell><Badge variant="outline">{idea.status}</Badge></TableCell>
-                          <TableCell className="max-w-64 text-muted-foreground">{idea.adminMessage || '-'}</TableCell>
-                          <TableCell className="text-right">{idea.pointsAwarded}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+            <Card className="relative overflow-hidden border bg-linear-to-br from-amber-500/10 via-yellow-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-amber-500/30">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-amber-500/10 blur-xl"></div>
+              <CardContent className="p-5 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">G'oyalar</p>
+                  <h3 className="text-2xl font-bold tracking-tight">{totalIdeas} ta</h3>
+                </div>
+                <div className="p-3 bg-amber-500/15 text-amber-500 rounded-2xl">
+                  <Lightbulb className="size-6" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-emerald-500/30">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-emerald-500/10 blur-xl"></div>
+              <CardContent className="p-5 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Qo'shimcha Ballar</p>
+                  <h3 className="text-2xl font-bold tracking-tight">+{totalPoints} ball</h3>
+                </div>
+                <div className="p-3 bg-emerald-500/15 text-emerald-500 rounded-2xl">
+                  <Trophy className="size-6" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-blue-500/10 via-sky-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-blue-500/30">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-blue-500/10 blur-xl"></div>
+              <CardContent className="p-5 flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Kutilmoqda</p>
+                  <h3 className="text-2xl font-bold tracking-tight">{pendingCount} ta</h3>
+                </div>
+                <div className="p-3 bg-blue-500/15 text-blue-500 rounded-2xl">
+                  <Bell className="size-6 animate-pulse" />
+                </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Sub Tabs Container */}
+          <Tabs defaultValue="achievements" className="w-full space-y-6">
+            <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+              <TabsTrigger value="achievements" className="flex items-center gap-2">
+                <Award className="size-4" />
+                Sertifikatlar va Yutuqlar
+              </TabsTrigger>
+              <TabsTrigger value="ideas" className="flex items-center gap-2">
+                <Lightbulb className="size-4" />
+                G'oyalar va Takliflar
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="achievements" className="space-y-6 focus-visible:outline-none animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <Card>
+                    <form onSubmit={handleUploadAchievement} className="contents">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Award /> Yangi Yutuq Arizasi</CardTitle>
+                        <CardDescription>Sertifikat yoki yutuq ma'lumotlarini yuboring.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Nomi</Label>
+                          <Input value={achTitle} onChange={e => setAchTitle(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Toifa</Label>
+                          <Select value={achCategory} onValueChange={(value: typeof achCategory) => setAchCategory(value)}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {['Startup', 'International IT', 'National IT', 'Mentorlik', 'Online Kurs', 'Offline Kurs', 'Volontyorlik', 'Soft Skills', 'Networking', 'Boshqa'].map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Tavsif</Label>
+                          <Textarea value={achDesc} onChange={e => setAchDesc(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Havola</Label>
+                          <Input value={achLink} onChange={e => setAchLink(e.target.value)} />
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Button type="submit" className="w-full"><Send /> Yuborish</Button>
+                      </CardFooter>
+                    </form>
+                  </Card>
+                </div>
+
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Yutuqlar va Sertifikatlar</CardTitle>
+                      <CardDescription>Yuborilgan arizalar va ularning holati.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Nomi</TableHead>
+                            <TableHead>Toifa</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Ball</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {student.achievements.map(achievement => (
+                            <TableRow key={achievement.id}>
+                              <TableCell className="font-medium">{achievement.title}</TableCell>
+                              <TableCell>{achievement.category}</TableCell>
+                              <TableCell>
+                                <Badge variant={achievement.status === 'Tasdiqlandi' ? 'default' : achievement.status === 'Rad etildi' ? 'destructive' : 'secondary'}>
+                                  {achievement.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right">{achievement.pointsAwarded}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="ideas" className="space-y-6 focus-visible:outline-none animate-in fade-in duration-300">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <Card>
+                    <form onSubmit={handleSubmitIdea} className="contents">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Lightbulb /> G'oya yoki Yechim Taklifi</CardTitle>
+                        <CardDescription>Tasdiqlangan g'oya +1 ball, joriy qilingan yechim +2 ball.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label>Nomi</Label>
+                          <Input value={ideaTitle} onChange={e => setIdeaTitle(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Yo'nalish</Label>
+                          <Select value={ideaArea} onValueChange={(value: typeof ideaArea) => setIdeaArea(value)}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {['Campus', 'Academic', 'Technology', 'Community', 'Process', 'Other'].map(area => (
+                                <SelectItem key={area} value={area}>{area}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Muammo</Label>
+                          <Textarea value={ideaProblem} onChange={e => setIdeaProblem(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Yechim</Label>
+                          <Textarea value={ideaSolution} onChange={e => setIdeaSolution(e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Kutilayotgan ta'sir</Label>
+                          <Textarea value={ideaImpact} onChange={e => setIdeaImpact(e.target.value)} />
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Button type="submit" className="w-full"><Send /> G'oyani yuborish</Button>
+                      </CardFooter>
+                    </form>
+                  </Card>
+                </div>
+
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>G'oyalar va Yechimlar</CardTitle>
+                      <CardDescription>Universitet hayotini yaxshilash bo'yicha takliflaringiz.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {(student.ideas ?? []).length === 0 ? (
+                        <p className="text-muted-foreground">Hali g'oya yuborilmagan.</p>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Nomi</TableHead>
+                              <TableHead>Yo'nalish</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Admin xabari</TableHead>
+                              <TableHead className="text-right">Ball</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(student.ideas ?? []).map(idea => (
+                              <TableRow key={idea.id}>
+                                <TableCell className="font-medium">{idea.title}</TableCell>
+                                <TableCell>{idea.area}</TableCell>
+                                <TableCell>
+                                  <Badge variant={idea.status === 'Tasdiqlandi' || idea.status === 'Joriy qilindi' ? 'default' : idea.status === 'Rad etildi' ? 'destructive' : 'secondary'}>
+                                    {idea.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="max-w-64 text-muted-foreground">{idea.adminMessage || '-'}</TableCell>
+                                <TableCell className="text-right">{idea.pointsAwarded}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       )}
 
