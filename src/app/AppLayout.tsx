@@ -349,7 +349,7 @@ export function AppLayout() {
 
           {/* Modern sticky breadcrumbs header */}
           {state.activeRole !== 'Guest' && (
-            <header className="fixed top-0 z-40 w-full border-b bg-background">
+            <header className="sticky top-0 z-40 w-full border-b bg-background">
               <div className="min-h-16 px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
 
                 {/* Left Side: Breadcrumb details with toggle trigger */}
@@ -410,7 +410,7 @@ export function AppLayout() {
           )}
 
           {/* Dynamic workspace context */}
-          <main className={`flex-1 ${state.activeRole === 'Guest' ? '' : 'mt-[72px] p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full'}`}>
+          <main className={`flex-1 ${state.activeRole === 'Guest' ? '' : 'p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full'}`}>
             <Outlet />
           </main>
 
