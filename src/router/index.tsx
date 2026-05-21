@@ -5,6 +5,7 @@ import { LandingPage } from '@/pages/landing/LandingPage';
 import { StudentDashboard } from '@/pages/student/StudentDashboard';
 import { MentorDashboard } from '@/pages/mentor/MentorDashboard';
 import { AdminDashboard } from '@/pages/admin/AdminDashboard';
+import { AuthPage } from '@/pages/auth/AuthPage';
 
 export interface VueRouteRecord {
   path: string;
@@ -41,6 +42,22 @@ const vueRoutes: VueRouteRecord[] = [
       {
         path: '',
         component: LandingPage,
+      },
+      {
+        path: 'login',
+        component: AuthPage,
+      },
+      {
+        path: 'signin',
+        redirect: '/login',
+      },
+      {
+        path: 'signup',
+        component: AuthPage,
+      },
+      {
+        path: 'reset-password',
+        component: AuthPage,
       },
       {
         path: 'student',

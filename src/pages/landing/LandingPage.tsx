@@ -96,8 +96,8 @@ export function LandingPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button size="lg" onClick={() => handleSelectRole('Student')}>
-              Demo kabinetga kirish
+            <Button size="lg" onClick={() => navigate('/login')}>
+              Tizimga kirish
               <ArrowRight />
             </Button>
             <Button size="lg" variant="outline" onClick={() => document.getElementById('roles')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -223,6 +223,8 @@ export function LandingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
+            <Button onClick={() => navigate('/login')}>Sign in</Button>
+            <Button variant="outline" onClick={() => navigate('/signup')}>Sign up</Button>
             <Button variant="outline" onClick={() => handleSelectRole('Mentor')}>Mentor oqimi</Button>
             <Button variant="outline" onClick={() => handleSelectRole('Admin')}>Admin oqimi</Button>
           </CardContent>
