@@ -270,51 +270,51 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
           </div>
 
           {/* Matrix Controls & Filters */}
-          <Card className="border-slate-800 bg-[#09051d]/40 backdrop-blur-xl">
-            <CardHeader className="border-b border-slate-800/40 pb-4">
+          <Card className="border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none">
+            <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <CardTitle className="text-base font-black text-slate-100 flex items-center gap-2">
+                  <CardTitle className="text-base font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <Activity className="text-indigo-400" size={16} />
                     Talabalar Grant Saralash Reytingi (16 Kolonnali Nizom Jurnali)
                   </CardTitle>
-                  <CardDescription className="text-xs text-slate-400">
+                  <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                     PDP strategik nizomi bo'yicha real-vaqtda hisoblanayotgan va dynamic filtrlarga mos keluvchi koeffitsientlar.
                   </CardDescription>
                 </div>
                 
                 {/* Search & Select filters in a nice flex row */}
                 <div className="flex flex-wrap gap-2 text-xs">
-                  <div className="flex items-center gap-2 bg-slate-950/60 border border-slate-800/80 px-2.5 rounded-lg h-9 w-48 sm:w-64">
-                    <Search size={14} className="text-slate-500" />
+                  <div className="flex items-center gap-2 bg-slate-50 dark:bg-zinc-950/60 border border-slate-200 dark:border-zinc-800/80 px-2.5 rounded-lg h-9 w-48 sm:w-64">
+                    <Search size={14} className="text-slate-400 dark:text-slate-500" />
                     <input
                       type="text"
                       placeholder="F.I.O yoki ID bo'yicha..."
                       value={searchTerm}
                       onChange={e => setSearchTerm(e.target.value)}
-                      className="w-full bg-transparent border-none text-xs text-slate-100 focus:outline-none placeholder-slate-600"
+                      className="w-full bg-transparent border-none text-xs text-slate-800 dark:text-slate-100 focus:outline-none placeholder-slate-400 dark:placeholder-slate-600"
                     />
                   </div>
 
                   <select
                     value={selectedGroupFilter}
                     onChange={e => setSelectedGroupFilter(e.target.value)}
-                    className="h-9 px-3 rounded-lg bg-slate-950/60 border border-slate-800/80 text-xs font-bold text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                    className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-zinc-950/60 border border-slate-200 dark:border-zinc-800/80 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
                   >
-                    <option value="">Barcha Guruhlar</option>
+                    <option value="" className="bg-white dark:bg-zinc-900">Barcha Guruhlar</option>
                     {uniqueGroups.map(grp => (
-                      <option key={grp} value={grp}>{grp}</option>
+                      <option key={grp} value={grp} className="bg-white dark:bg-zinc-900">{grp}</option>
                     ))}
                   </select>
 
                   <select
                     value={selectedStatusFilter}
                     onChange={e => setSelectedStatusFilter(e.target.value)}
-                    className="h-9 px-3 rounded-lg bg-slate-950/60 border border-slate-800/80 text-xs font-bold text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                    className="h-9 px-3 rounded-lg bg-slate-50 dark:bg-zinc-950/60 border border-slate-200 dark:border-zinc-800/80 text-xs font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
                   >
-                    <option value="">Barcha Statuslar</option>
-                    <option value="Grant">Grant</option>
-                    <option value="Kontrakt">Kontrakt</option>
+                    <option value="" className="bg-white dark:bg-zinc-900">Barcha Statuslar</option>
+                    <option value="Grant" className="bg-white dark:bg-zinc-900">Grant</option>
+                    <option value="Kontrakt" className="bg-white dark:bg-zinc-900">Kontrakt</option>
                   </select>
                 </div>
               </div>
@@ -327,7 +327,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                   <thead>
                     <tr className="bg-slate-950/60 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
                       {/* Frozen/Sticky First Column Head */}
-                      <th className="py-3 px-4 sticky left-0 bg-[#060317] z-20 shadow-[2px_0_5px_rgba(0,0,0,0.6)] border-r border-slate-800/60 text-slate-200">
+                      <th className="py-3 px-4 sticky left-0 bg-slate-50 dark:bg-zinc-900 z-20 shadow-[2px_0_5px_rgba(0,0,0,0.05)] dark:shadow-[2px_0_5px_rgba(0,0,0,0.4)] border-r border-slate-200 dark:border-zinc-800/60 text-slate-700 dark:text-slate-200">
                         F.I.O (Talaba)
                       </th>
                       <th className="py-3 px-3">Guruh</th>
@@ -359,9 +359,9 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                       filteredStudents.map(st => (
                         <tr key={st.id} className="hover:bg-slate-900/30 transition-colors">
                           {/* Frozen/Sticky First Column Cell */}
-                          <td className="py-3 px-4 sticky left-0 bg-[#060317] z-10 shadow-[2px_0_5px_rgba(0,0,0,0.6)] border-r border-slate-800/60">
-                            <div className="font-extrabold text-white text-xs">{st.fullName}</div>
-                            <div className="text-[9px] text-slate-500">{st.id}</div>
+                          <td className="py-3 px-4 sticky left-0 bg-white dark:bg-zinc-900 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] dark:shadow-[2px_0_5px_rgba(0,0,0,0.4)] border-r border-slate-200 dark:border-zinc-800/60">
+                            <div className="font-extrabold text-slate-900 dark:text-white text-xs">{st.fullName}</div>
+                            <div className="text-[9px] text-slate-500 dark:text-slate-400">{st.id}</div>
                           </td>
                           <td className="py-3 px-3 text-slate-300 font-medium">{st.group}</td>
                           <td className="py-3 px-2 text-center">
@@ -424,14 +424,14 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
       {/* 2. PENDING QUEUE TAB */}
       {currentTab === 'queue' && (
         <div className="space-y-6 animate-fadeIn">
-          <Card className="border-slate-800 bg-[#09051d]/40 backdrop-blur-xl">
+          <Card className="border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none">
             <CardHeader>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
                   <Award size={16} />
                 </div>
                 <div>
-                  <CardTitle className="text-base font-black text-white">Yutuq va Sertifikatlarni Tasdiqlash Navbati</CardTitle>
+                  <CardTitle className="text-base font-black text-slate-900 dark:text-white">Yutuq va Sertifikatlarni Tasdiqlash Navbati</CardTitle>
                   <CardDescription className="text-xs text-slate-400">
                     Talabalar tomonidan tizimga yuklangan yutuq, sertifikat, startup yoki jamoat faoliyati arizalarini tekshirish.
                   </CardDescription>
@@ -547,9 +547,9 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Left Side: Select Student List */}
-            <Card className="lg:col-span-1 border-slate-800 bg-[#09051d]/40 backdrop-blur-xl h-fit">
-              <CardHeader className="border-b border-slate-800/40 pb-4">
-                <CardTitle className="text-sm font-black text-white flex items-center gap-2">
+            <Card className="lg:col-span-1 border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none h-fit">
+              <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
+                <CardTitle className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <Sliders className="text-amber-400" size={16} />
                   Talabani Tanlash
                 </CardTitle>
@@ -618,11 +618,11 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
               
               {/* MODIFIERS PANEL */}
               {selectedStudentModifierId ? (
-                <Card className="border-indigo-500/20 bg-[#09051d]/40 backdrop-blur-xl animate-scaleUp">
-                  <CardHeader className="border-b border-slate-800/40 pb-4">
+                <Card className="border-indigo-500/20 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none animate-scaleUp">
+                  <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <CardTitle className="text-base font-black text-white">Jarima & Bonus Ballarini Kiritish</CardTitle>
+                        <CardTitle className="text-base font-black text-slate-900 dark:text-white">Jarima & Bonus Ballarini Kiritish</CardTitle>
                         <CardDescription className="text-xs text-slate-400">
                           Talaba: <strong className="text-indigo-400">{state.students.find(s => s.id === selectedStudentModifierId)?.fullName}</strong>
                         </CardDescription>
@@ -770,11 +770,11 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                   </form>
                 </Card>
               ) : selectedStudentTutorId ? (
-                <Card className="border-purple-500/20 bg-[#09051d]/40 backdrop-blur-xl animate-scaleUp">
-                  <CardHeader className="border-b border-slate-800/40 pb-4">
+                <Card className="border-purple-500/20 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none animate-scaleUp">
+                  <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <CardTitle className="text-base font-black text-white">Tyutor Madaniy-Ijtimoiy Baholash</CardTitle>
+                        <CardTitle className="text-base font-black text-slate-900 dark:text-white">Tyutor Madaniy-Ijtimoiy Baholash</CardTitle>
                         <CardDescription className="text-xs text-slate-400">
                           Talaba: <strong className="text-purple-400">{state.students.find(s => s.id === selectedStudentTutorId)?.fullName}</strong>
                         </CardDescription>
@@ -943,10 +943,10 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
             {/* Right Side: Gateway System Logs & Live Status Console */}
             <div className="lg:col-span-1 space-y-6">
               
-              <Card className="border-slate-800 bg-[#09051d]/40 backdrop-blur-xl h-full flex flex-col justify-between">
+              <Card className="border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none h-full flex flex-col justify-between">
                 <div>
-                  <CardHeader className="border-b border-slate-800/40 pb-4">
-                    <CardTitle className="text-sm font-black text-white flex items-center gap-2">
+                  <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
+                    <CardTitle className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                       <Clock className="text-indigo-400 animate-pulse" size={16} />
                       Gateway Logs Xronologiyasi
                     </CardTitle>
@@ -982,9 +982,9 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
           </div>
 
           {/* Harakatlar Xronologiyasi (Audit Logs List) at bottom of faceid/system settings */}
-          <Card className="border-slate-800 bg-[#09051d]/40 backdrop-blur-xl">
-            <CardHeader className="border-b border-slate-800/40 pb-4">
-              <CardTitle className="text-sm font-black text-white flex items-center gap-2">
+          <Card className="border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none">
+            <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
+              <CardTitle className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock className="text-indigo-400" size={16} />
                 Global Harakatlar Audit Xronologiyasi
               </CardTitle>
@@ -1063,7 +1063,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                 </div>
 
                 {/* Student specific charter scores */}
-                <div className="p-4 rounded-xl bg-[#09051d]/40 border border-slate-800/80 space-y-3">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-zinc-950/40 border border-slate-200 dark:border-zinc-800/80 space-y-3">
                   <h4 className="text-white font-bold uppercase tracking-wider text-[10px] mb-2 flex items-center gap-1.5">
                     <Award size={12} className="text-pink-400" />
                     Grant Nizomi Koeffitsientlari
