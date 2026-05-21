@@ -8,6 +8,7 @@
     ],
     "target": "ESNext",
     "module": "Preserve",
+    "ignoreDeprecations": "6.0",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
@@ -22,7 +23,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/*": [

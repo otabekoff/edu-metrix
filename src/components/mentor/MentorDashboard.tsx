@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGlobalState } from '../../context/StateContext';
-import { Users, Calendar, Award, MessageSquare, Save, Check, X, Send, BookOpen } from 'lucide-react';
+import { Users, Calendar as CalendarIcon, Award, MessageSquare, Save, Check, X, Send, BookOpen } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { format, parseISO } from 'date-fns';
+import { uz } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 
 interface MentorDashboardProps {
   activeSubTab?: 'journal' | 'feedback';
@@ -177,21 +182,45 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
               <CardHeader className="border-b border-slate-200 dark:border-zinc-850/40 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <CardTitle className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <Calendar className="text-purple-650 dark:text-purple-400" size={18} />
+                    <CalendarIcon className="text-purple-650 dark:text-purple-400" size={18} />
                     Tezkor Davomat Jurnali (2-Click)
                   </CardTitle>
-                  <CardDescription className="text-xs text-slate-505 dark:text-slate-400">
+                  <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
                     Sanani tanlang va talaba davomat holatini o'zgartirish uchun tugmaga bosing.
                   </CardDescription>
                 </div>
 
-                {/* Date Picker using Shadcn styled Input */}
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={e => setSelectedDate(e.target.value)}
-                  className="w-fit bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202 font-bold focus-visible:ring-purple-500/20"
-                />
+                {/* Premium Shadcn Date Picker using Popover + Calendar */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-50 justify-start text-left font-bold h-9 bg-slate-50 dark:bg-zinc-950 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202 hover:bg-slate-100 dark:hover:bg-zinc-900/50 cursor-pointer shadow-xs focus-visible:ring-purple-500/20",
+                        !selectedDate && "text-slate-400 dark:text-slate-550"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                      {selectedDate ? (
+                        format(parseISO(selectedDate), "d-MMMM, yyyy", { locale: uz })
+                      ) : (
+                        <span>Sanani tanlang</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-xl" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate ? parseISO(selectedDate) : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(format(date, "yyyy-MM-dd"));
+                        }
+                      }}
+                      className="bg-white dark:bg-zinc-950 text-slate-800 dark:text-slate-100"
+                    />
+                  </PopoverContent>
+                </Popover>
               </CardHeader>
               
               <CardContent className="pt-6">
@@ -202,7 +231,7 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
                         <th className="py-3 px-4">Talaba F.I.O</th>
                         <th className="py-3 px-2">GPA (Akad)</th>
                         <th className="py-3 px-2 text-center">Davomati</th>
-                        <th className="py-3 px-4 text-center">{selectedDate} holati</th>
+                        <th className="py-3 px-4 text-center">{format(parseISO(selectedDate), "d-MMMM", { locale: uz })} holati</th>
                         <th className="py-3 px-4 text-center">Amallar</th>
                       </tr>
                     </thead>
