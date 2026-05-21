@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
-import { Activity, Award, Clock, Lightbulb, Play, Shield, Sliders } from 'lucide-react';
+import type { ColumnDef, ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/react-table';
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { Activity, ArrowUpDown, Award, Clock, Columns3, Lightbulb, Play, Shield, Sliders } from 'lucide-react';
 import { useGlobalState } from '../../context/StateContext';
+import type { AuditLog } from '../../types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +19,200 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import sampleJson from '../../../useful_assets/sample.json';
 import { toast } from 'sonner';
+
+type AuditTableRow = AuditLog & {
+  formattedTime: string;
+};
+
+function AuditDataTable({ data }: { data: AuditTableRow[] }) {
+  const [sorting, setSorting] = React.useState<SortingState>([{ id: 'timestamp', desc: true }]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [globalFilter, setGlobalFilter] = React.useState('');
+
+  const columns: ColumnDef<AuditTableRow>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Barchasini tanlash"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Qatorni tanlash"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'userRole',
+      header: 'Rol',
+      cell: ({ row }) => <Badge variant="outline">{row.getValue('userRole')}</Badge>,
+    },
+    {
+      accessorKey: 'action',
+      header: ({ column }) => (
+        <Button variant="ghost" size="sm" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Harakat
+          <ArrowUpDown className="size-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <div className="font-medium">{row.getValue('action')}</div>,
+    },
+    {
+      accessorKey: 'details',
+      header: 'Izoh',
+      cell: ({ row }) => <div className="max-w-xl text-muted-foreground">{row.getValue('details')}</div>,
+    },
+    {
+      accessorKey: 'timestamp',
+      header: ({ column }) => (
+        <Button variant="ghost" size="sm" className="ml-auto" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+          Vaqt
+          <ArrowUpDown className="size-4" />
+        </Button>
+      ),
+      cell: ({ row }) => <div className="text-right">{row.original.formattedTime}</div>,
+    },
+  ];
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Input
+          placeholder="Harakat yoki izoh bo'yicha qidirish..."
+          value={globalFilter}
+          onChange={(event) => setGlobalFilter(event.target.value)}
+          className="max-w-sm"
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="sm:ml-auto">
+              <Columns3 />
+              Ustunlar
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id === 'userRole' ? 'Rol' : column.id === 'action' ? 'Harakat' : column.id === 'details' ? 'Izoh' : column.id === 'timestamp' ? 'Vaqt' : column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <div className="overflow-hidden rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className={header.column.id === 'timestamp' ? 'text-right' : undefined}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Natija topilmadi.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} / {table.getFilteredRowModel().rows.length} qator tanlandi.
+        </div>
+        <div className="flex items-center gap-2">
+          <Select value={`${table.getState().pagination.pageSize}`} onValueChange={(value) => table.setPageSize(Number(value))}>
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[5, 10, 20].map((pageSize) => (
+                <SelectItem key={pageSize} value={`${pageSize}`}>
+                  {pageSize} qator
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+            Oldingi
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+            Keyingi
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function AdminDashboard() {
   const { state, dispatch } = useGlobalState();
@@ -54,6 +255,10 @@ export function AdminDashboard() {
   const averageGPA = Number((state.students.reduce((sum, s) => sum + s.gpa, 0) / state.students.length).toFixed(1));
   const activeGrants = state.students.filter(s => s.status === 'Grant' && !s.isGrantCancelled).length;
   const highRiskCount = state.students.filter(s => s.riskLevel === 'High').length;
+  const auditTableRows: AuditTableRow[] = state.auditLogs.map(log => ({
+    ...log,
+    formattedTime: new Date(log.timestamp).toLocaleString('uz-UZ')
+  }));
 
   const handleRunApiImport = () => {
     const timestampStr = new Date().toLocaleTimeString();
@@ -358,14 +563,14 @@ export function AdminDashboard() {
               <CardDescription>POST /api/attendance</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Request Payload</Label>
-                  <Textarea className="min-h-80 font-mono" value={apiPayloadStr} onChange={e => setApiPayloadStr(e.target.value)} />
+                  <Textarea className="h-72 max-h-72 resize-none overflow-auto font-mono" value={apiPayloadStr} onChange={e => setApiPayloadStr(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>HTTP Response</Label>
-                  <pre className="min-h-80 overflow-auto rounded-md border bg-muted p-3 text-sm">{apiConsoleResponse || 'Response JSON stream will load here after execution.'}</pre>
+                  <pre className="h-48 max-h-48 overflow-auto rounded-md border bg-muted p-3 text-sm">{apiConsoleResponse || 'Response JSON stream will load here after execution.'}</pre>
                 </div>
               </div>
             </CardContent>
@@ -379,7 +584,7 @@ export function AdminDashboard() {
               <CardTitle className="flex items-center gap-2"><Clock /> Gateway Logs</CardTitle>
               <CardDescription>Router ulanishlari va tizim tekshiruvlari.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="max-h-[420px] space-y-2 overflow-auto">
               {apiConsoleLogs.map((log, index) => (
                 <pre key={index} className="rounded-md border bg-muted p-2 text-xs whitespace-pre-wrap">{log}</pre>
               ))}
@@ -392,26 +597,7 @@ export function AdminDashboard() {
               <CardDescription>Platformadagi har bir harakat yozib boriladi.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Rol</TableHead>
-                    <TableHead>Harakat</TableHead>
-                    <TableHead>Izoh</TableHead>
-                    <TableHead className="text-right">Vaqt</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {state.auditLogs.map(log => (
-                    <TableRow key={log.id}>
-                      <TableCell><Badge variant="outline">{log.userRole}</Badge></TableCell>
-                      <TableCell className="font-medium">{log.action}</TableCell>
-                      <TableCell>{log.details}</TableCell>
-                      <TableCell className="text-right">{new Date(log.timestamp).toLocaleString('uz-UZ')}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <AuditDataTable data={auditTableRows} />
             </CardContent>
           </Card>
         </div>
