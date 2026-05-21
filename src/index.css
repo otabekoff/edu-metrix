@@ -3,11 +3,15 @@
 @layer base {
   :root {
     font-family: "Geist", system-ui, -apple-system, sans-serif;
+    font-size: clamp(16px, 15.2px + 0.25vw, 18px);
   }
 
   body {
     @apply min-h-screen relative m-0 bg-background text-foreground w-full;
     font-family: "Geist", system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 }
 

@@ -4,7 +4,7 @@ import { Outlet, useNavigate, useLocation, useParams } from 'react-router';
 import { 
   Award, BookOpen, Shield, GraduationCap, LayoutDashboard, 
   LogOut, Activity, Calendar, Terminal, Sliders, UserCheck,
-  Sun, Moon
+  Sun, Moon, Bell, AlertTriangle, Clock
 } from 'lucide-react';
 import {
   Sidebar,
@@ -24,6 +24,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import "../index.css";
 // @ts-ignore
 import logoUrl from '../../public/logo.png';
@@ -78,6 +85,28 @@ export function AppLayout() {
   }, [location.pathname, state.activeRole, dispatch]);
 
   const student = state.students.find(s => s.id === state.activeStudentId);
+  const selectionDeadline = new Date('2026-06-30T23:59:59+05:00');
+  const selectionMsLeft = Math.max(selectionDeadline.getTime() - Date.now(), 0);
+  const selectionDaysLeft = Math.ceil(selectionMsLeft / (1000 * 60 * 60 * 24));
+  const selectionTimeLabel = selectionDaysLeft > 0
+    ? `${selectionDaysLeft} kun qoldi`
+    : 'Saralash yakunlandi';
+  const notifications = [
+    {
+      title: 'Grant saralash muddati',
+      description: `Saralash yakunigacha ${selectionTimeLabel}. Deadline: 30-iyun, 2026.`,
+    },
+    {
+      title: 'Davomat ogohlantirishi',
+      description: student
+        ? `${student.fullName}: davomat ${student.attendance_summary.attendance_percentage}%. Minimal talab 80%.`
+        : 'Minimal davomat talabi 80%.',
+    },
+    {
+      title: 'Yutuqlar navbati',
+      description: `${state.students.flatMap(s => s.achievements).filter(a => a.status === 'Kutilmoqda').length} ta sertifikat admin tasdig'ini kutmoqda.`,
+    },
+  ];
 
   const getBreadcrumbTitle = () => {
     if (state.activeRole === 'Guest') return 'Bosh Sahifa';
@@ -165,6 +194,9 @@ export function AppLayout() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
+              <SidebarGroupContent className="px-2 group-data-[collapsible=icon]:hidden">
+                <Badge variant="outline">FaceID API Gateway: Connected</Badge>
+              </SidebarGroupContent>
             </SidebarGroup>
 
             {/* Navigation Lists */}
@@ -296,13 +328,13 @@ export function AppLayout() {
           
           {/* Modern sticky breadcrumbs header */}
           {state.activeRole !== 'Guest' && (
-            <header className="sticky top-0 z-40 w-full border-b bg-background h-16">
-              <div className="h-full px-4 md:px-8 flex items-center justify-between">
+            <header className="sticky top-0 z-40 w-full border-b bg-background">
+              <div className="min-h-16 px-4 py-3 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
                 
                 {/* Left Side: Breadcrumb details with toggle trigger */}
                 <div className="flex items-center gap-3">
                   <SidebarTrigger />
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
                     <span className="text-sm text-muted-foreground">Edumetric</span>
                     <span className="text-muted-foreground">/</span>
                     <Badge variant="outline">{getBreadcrumbTitle()}</Badge>
@@ -310,8 +342,38 @@ export function AppLayout() {
                 </div>
 
                 {/* Right Side: Global mock indicators, Theme Toggle, and Avatar */}
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="hidden sm:inline-flex">FaceID API Gateway: Connected</Badge>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Badge variant="outline" className="hidden sm:inline-flex">
+                    <Clock className="size-3" />
+                    {selectionTimeLabel}
+                  </Badge>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Bildirishnomalar"
+                      >
+                        <Bell size={14} />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-80">
+                      <PopoverHeader>
+                        <PopoverTitle>Bildirishnomalar</PopoverTitle>
+                      </PopoverHeader>
+                      <div className="mt-4 space-y-3">
+                        {notifications.map(notification => (
+                          <div key={notification.title} className="flex gap-3 rounded-md border p-3">
+                            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                            <div className="space-y-1">
+                              <div className="text-sm font-medium">{notification.title}</div>
+                              <p className="text-sm text-muted-foreground">{notification.description}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                   <Button
                     variant="outline"
                     size="icon"
@@ -320,7 +382,6 @@ export function AppLayout() {
                   >
                     {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
                   </Button>
-                  <Badge>{state.activeRole}</Badge>
                 </div>
 
               </div>
@@ -328,13 +389,13 @@ export function AppLayout() {
           )}
 
           {/* Dynamic workspace context */}
-          <main className={`flex-1 ${state.activeRole === 'Guest' ? '' : 'p-4 md:p-8 max-w-7xl mx-auto w-full'}`}>
+          <main className={`flex-1 ${state.activeRole === 'Guest' ? '' : 'p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full'}`}>
             <Outlet />
           </main>
 
           {/* Modern footer with Hackathon branding */}
           <footer className="w-full py-6 border-t mt-auto">
-            <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-4 text-center text-sm text-muted-foreground">
               <div>
                 &copy; {new Date().getFullYear()} Edumetric LMS. Barcha huquqlar himoyalangan.
               </div>

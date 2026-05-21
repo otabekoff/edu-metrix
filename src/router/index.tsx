@@ -1,10 +1,10 @@
 import React from 'react';
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
-import { AppLayout } from '../views/AppLayout';
-import { LandingPage } from '../components/landing/LandingPage';
-import { StudentDashboard } from '../components/student/StudentDashboard';
-import { MentorDashboard } from "../components/mentor/MentorDashboard";
-import { AdminDashboard } from '../components/admin/AdminDashboard';
+import { AppLayout } from '@/app/AppLayout';
+import { LandingPage } from '@/pages/landing/LandingPage';
+import { StudentDashboard } from '@/pages/student/StudentDashboard';
+import { MentorDashboard } from '@/pages/mentor/MentorDashboard';
+import { AdminDashboard } from '@/pages/admin/AdminDashboard';
 
 export interface VueRouteRecord {
   path: string;
@@ -70,5 +70,12 @@ const vueRoutes: VueRouteRecord[] = [
   },
 ];
 
-export const router = createBrowserRouter(vueRoutes.map(convertVueRouteToReactRoute));
+const basename =
+  typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
+    ? '/edu-metrix'
+    : undefined;
+
+export const router = createBrowserRouter(vueRoutes.map(convertVueRouteToReactRoute), {
+  basename,
+});
 export default router;
