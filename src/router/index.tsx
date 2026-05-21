@@ -3,7 +3,7 @@ import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { AppLayout } from '../views/AppLayout';
 import { LandingPage } from '../components/landing/LandingPage';
 import { StudentDashboard } from '../components/student/StudentDashboard';
-import { MentorDashboard } from '../components/mentor/MentorDashboard';
+import { MentorDashboard } from "../components/mentor/MentorDashboard";
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 
 export interface VueRouteRecord {
