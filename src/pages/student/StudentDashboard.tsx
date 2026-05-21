@@ -300,62 +300,50 @@ export function StudentDashboard({ activeSubTab }: StudentDashboardProps) {
         <div className="space-y-6 animate-in fade-in duration-300">
           {/* Stats Cards Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="relative overflow-hidden border bg-linear-to-br from-indigo-500/10 via-purple-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-indigo-500/30">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-indigo-500/10 blur-xl"></div>
-              <CardContent className="p-5 flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Yutuqlar</p>
-                  <h3 className="text-2xl font-bold tracking-tight">{totalAchievements} ta</h3>
-                </div>
-                <div className="p-3 bg-indigo-500/15 text-indigo-500 rounded-2xl">
-                  <Award className="size-6" />
-                </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Yutuqlar</CardTitle>
+                <Award className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalAchievements} ta</div>
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border bg-linear-to-br from-amber-500/10 via-yellow-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-amber-500/30">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-amber-500/10 blur-xl"></div>
-              <CardContent className="p-5 flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">G'oyalar</p>
-                  <h3 className="text-2xl font-bold tracking-tight">{totalIdeas} ta</h3>
-                </div>
-                <div className="p-3 bg-amber-500/15 text-amber-500 rounded-2xl">
-                  <Lightbulb className="size-6" />
-                </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">G'oyalar</CardTitle>
+                <Lightbulb className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalIdeas} ta</div>
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-emerald-500/30">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-emerald-500/10 blur-xl"></div>
-              <CardContent className="p-5 flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Qo'shimcha Ballar</p>
-                  <h3 className="text-2xl font-bold tracking-tight">+{totalPoints} ball</h3>
-                </div>
-                <div className="p-3 bg-emerald-500/15 text-emerald-500 rounded-2xl">
-                  <Trophy className="size-6" />
-                </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Qo'shimcha Ballar</CardTitle>
+                <Trophy className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">+{totalPoints} ball</div>
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border bg-gradient-to-br from-blue-500/10 via-sky-500/5 to-transparent backdrop-blur-sm transition-all duration-300 hover:shadow-md hover:border-blue-500/30">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-16 h-16 rounded-full bg-blue-500/10 blur-xl"></div>
-              <CardContent className="p-5 flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground tracking-wider uppercase">Kutilmoqda</p>
-                  <h3 className="text-2xl font-bold tracking-tight">{pendingCount} ta</h3>
-                </div>
-                <div className="p-3 bg-blue-500/15 text-blue-500 rounded-2xl">
-                  <Bell className="size-6 animate-pulse" />
-                </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Kutilmoqda</CardTitle>
+                <Bell className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pendingCount} ta</div>
               </CardContent>
             </Card>
           </div>
 
           {/* Sub Tabs Container */}
           <Tabs defaultValue="achievements" className="w-full space-y-6">
-            <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsList className="grid w-full max-w-100 grid-cols-2">
               <TabsTrigger value="achievements" className="flex items-center gap-2">
                 <Award className="size-4" />
                 Sertifikatlar va Yutuqlar
