@@ -640,11 +640,12 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
 
       {/* 4. Scholarship & Leaderboard Tab */}
       {currentTab === 'scholarship' && (
-        <div className="p-6 rounded-xl border border-slate-200 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md space-y-6 animate-fadeIn shadow-sm dark:shadow-none">
-          <div className="border-b border-slate-200 dark:border-zinc-850/40 pb-3">
-            <h3 className="text-lg font-black text-slate-900 dark:text-white">Guruhlararo Grant Reytingi Jurnali</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">PDP University global grant saralash reytingi va talabalar xavf darajalari.</p>
-          </div>
+        <Card className="bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none animate-fadeIn">
+          <CardHeader className="border-b border-slate-200 dark:border-zinc-850/40 pb-3">
+            <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Guruhlararo Grant Reytingi Jurnali</CardTitle>
+            <CardDescription className="text-xs text-slate-555 dark:text-slate-400">PDP University global grant saralash reytingi va talabalar xavf darajalari.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-6">
 
           <div className="p-4 rounded-lg bg-indigo-50/50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/10 text-xs text-indigo-700 dark:text-indigo-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="leading-relaxed">
@@ -707,16 +708,18 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
               </tbody>
             </table>
           </div>
-        </div>
+        </CardContent>
+      </Card>
       )}
 
       {/* 5. Mentor Feedback Inbox Tab */}
       {currentTab === 'feedback' && (
-        <div className="p-6 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md space-y-6 animate-fadeIn shadow-sm dark:shadow-none">
-          <div className="border-b border-slate-200 dark:border-zinc-850/40 pb-3">
-            <h3 className="text-lg font-black text-slate-900 dark:text-white">Mentor va Tyutor Feedbacklari</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Kurs rahbari hamda ijtimoiy tyutorlaringiz tomonidan yozilgan shaxsiy xarakteristikalar.</p>
-          </div>
+        <Card className="bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border-slate-200 dark:border-zinc-800 shadow-sm dark:shadow-none animate-fadeIn">
+          <CardHeader className="border-b border-slate-200 dark:border-zinc-850/40 pb-3">
+            <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Mentor va Tyutor Feedbacklari</CardTitle>
+            <CardDescription className="text-xs text-slate-555 dark:text-slate-400">Kurs rahbari hamda ijtimoiy tyutorlaringiz tomonidan yozilgan shaxsiy xarakteristikalar.</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-4">
 
           <div className="space-y-4">
             {student.feedback.length === 0 ? (
@@ -746,7 +749,8 @@ export function StudentDashboard({ activeSubTab, setActiveSubTab }: StudentDashb
               ))
             )}
           </div>
-        </div>
+        </CardContent>
+      </Card>
       )}
 
       {/* 6. Settings Tab */}
