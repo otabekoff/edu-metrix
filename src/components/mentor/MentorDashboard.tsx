@@ -14,28 +14,22 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 
-interface MentorDashboardProps {
-  activeSubTab?: 'journal' | 'feedback';
-  setActiveSubTab?: (tab: 'journal' | 'feedback') => void;
-}
+import { useParams } from 'react-router';
 
-export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboardProps) {
+export function MentorDashboard() {
   const { state, dispatch } = useGlobalState();
-  
-  // Local fallback if tab state is not driven by the parent shell
-  const [localSubTab, setLocalSubTab] = useState<'journal' | 'feedback'>('journal');
-  const currentTab = activeSubTab || localSubTab;
-  const setCurrentTab = setActiveSubTab || setLocalSubTab;
+  const params = useParams();
+  const currentTab = params.tab || 'journal';
 
   const [selectedGroup, setSelectedGroup] = useState<string>('IF-22-04');
   const [selectedSubject, setSelectedSubject] = useState<string>('SUB-101');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]!);
-  
+
   // Grader & Feedback state
   const [gradingStudentId, setGradingStudentId] = useState<string | null>(null);
   const [gradeValue, setGradeValue] = useState<string>('14');
   const [feedbackText, setFeedbackText] = useState<string>('');
-  
+
   // Direct Feedback Broadcast state
   const [broadcastStudentId, setBroadcastStudentId] = useState<string>('');
   const [broadcastType, setBroadcastType] = useState<'Academic' | 'Leadership' | 'Soft Skills' | 'Corporate'>('Academic');
@@ -43,7 +37,7 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
 
   // Groups list from global state
   const uniqueGroups = Array.from(new Set(state.students.map(s => s.group)));
-  
+
   // Enrolled students in chosen group
   const groupStudents = state.students.filter(s => s.group === selectedGroup);
 
@@ -123,30 +117,30 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
 
   return (
     <div className="w-full space-y-8 animate-fadeIn text-left">
-      
+
       {/* Mentor Header Card */}
-      <Card className="p-6 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border border-slate-200 dark:border-zinc-800/80 relative overflow-hidden shadow-sm dark:shadow-none gap-0 py-0 flex-col justify-start">
+      <Card className="relative bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md border border-slate-200 dark:border-zinc-800/80 overflow-hidden shadow-sm dark:shadow-none">
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+        <CardContent className="p-6 md:p-8 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
           <div>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-1.5 flex items-center gap-2">
-              <BookOpen className="text-purple-650 dark:text-purple-400" size={24} />
+              <BookOpen className="text-purple-600 dark:text-purple-400" size={24} />
               Mentor Ish Stoli
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">O'qituvchi: <strong className="text-purple-660 dark:text-purple-400 font-bold">D. Eshmuradov</strong> | Darslar, davomat va amaliy topshiriqlar boshqaruvi</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">O'qituvchi: <strong className="text-purple-600 dark:text-purple-400 font-bold">D. Eshmuradov</strong> | Darslar, davomat va amaliy topshiriqlar boshqaruvi</p>
           </div>
 
           {/* Group and Subject Selectors inside header */}
           <div className="flex flex-wrap gap-4 text-xs">
-            
+
             {/* Group switch using Shadcn */}
             <div className="space-y-1">
               <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Guruhni Tanlang</Label>
               <Select value={selectedGroup} onValueChange={setSelectedGroup}>
-                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202 h-9 w-24">
+                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-200 h-9 w-24">
                   <SelectValue placeholder="Guruh" />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202">
+                <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-200">
                   {uniqueGroups.map(grp => (
                     <SelectItem key={grp} value={grp}>{grp}</SelectItem>
                   ))}
@@ -158,10 +152,10 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
             <div className="space-y-1">
               <Label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Fanni Tanlang</Label>
               <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202 h-9 w-60">
+                <SelectTrigger className="bg-slate-50/50 dark:bg-zinc-950/60 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-200 h-9 w-60">
                   <SelectValue placeholder="Fan" />
                 </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-202">
+                <SelectContent className="bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-xs text-slate-800 dark:text-slate-200">
                   <SelectItem value="SUB-101">Ma'lumotlar strukturasi & algoritmlar</SelectItem>
                   <SelectItem value="SUB-102">Ma'lumotlar bazasi tizimlari</SelectItem>
                 </SelectContent>
@@ -169,13 +163,13 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
             </div>
 
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       {/* 1. Journal & Attendance Tab */}
       {currentTab === 'journal' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
+
           {/* Attendance spreadsheet */}
           <div className="md:col-span-2 space-y-6">
             <Card className="bg-white/80 dark:bg-zinc-900/50 border-slate-200 dark:border-zinc-800 shadow-xl">
@@ -222,7 +216,7 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
                   </PopoverContent>
                 </Popover>
               </CardHeader>
-              
+
               <CardContent className="pt-6">
                 <div className="overflow-x-auto border border-slate-200 dark:border-zinc-800/80 rounded-lg shadow-sm dark:shadow-none">
                   <table className="w-full text-left text-xs whitespace-nowrap">
@@ -249,15 +243,14 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
                             </td>
                             <td className="py-3.5 px-2 text-slate-700 dark:text-slate-300 font-semibold font-mono">{student.gpa}%</td>
                             <td className="py-3.5 px-2 text-center text-slate-700 dark:text-slate-300 font-semibold font-mono">{student.attendance_summary.attendance_percentage}%</td>
-                            
+
                             <td className="py-3.5 px-4 text-center">
                               <button
                                 onClick={() => handleToggleAttendance(student.id, statusStr)}
-                                className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 mx-auto cursor-pointer border ${
-                                  statusStr === 'attended' 
-                                    ? 'bg-emerald-50/60 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-205 dark:border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.08)]' 
-                                    : 'bg-rose-50/60 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-205 dark:border-rose-500/20 shadow-[0_0_8px_rgba(244,63,94,0.08)]'
-                                }`}
+                                className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1 mx-auto cursor-pointer border ${statusStr === 'attended'
+                                  ? 'bg-emerald-50/60 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-205 dark:border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.08)]'
+                                  : 'bg-rose-50/60 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-205 dark:border-rose-500/20 shadow-[0_0_8px_rgba(244,63,94,0.08)]'
+                                  }`}
                               >
                                 {statusStr === 'attended' ? <Check size={11} /> : <X size={11} />}
                                 {statusStr === 'attended' ? 'Keldi' : 'Kelmadi'}
@@ -305,10 +298,10 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
                     Yopish
                   </button>
                 </CardHeader>
-                
+
                 <form onSubmit={handleSubmitGrade}>
                   <CardContent className="pt-6 space-y-4">
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
                         <Label>Topshiriq Balli (0-15)</Label>
@@ -369,10 +362,10 @@ export function MentorDashboard({ activeSubTab, setActiveSubTab }: MentorDashboa
                 Talabaning korporativ madaniyati, faolligi yoki akademik yondashuvi bo'yicha fikr mulohaza broadcast yuboring.
               </CardDescription>
             </CardHeader>
-            
+
             <form onSubmit={handleBroadcastFeedback}>
               <CardContent className="pt-6 space-y-4">
-                
+
                 {/* Student Selector */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold text-slate-500 dark:text-slate-400">Talabani tanlang</Label>

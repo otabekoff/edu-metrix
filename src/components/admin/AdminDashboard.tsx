@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalState } from '../../context/StateContext';
-import { 
-  Shield, Check, X, Search, FileCode, Clock, Eye, 
+import {
+  Shield, Check, X, Search, FileCode, Clock, Eye,
   Settings, Award, AlertTriangle, UserCheck, Play, ArrowDown, Trash2,
   Sliders, Calendar, Sparkles, Terminal, Activity, Database, CheckCircle,
   HelpCircle, BarChart3, AlertCircle, Copy, CheckSquare
@@ -15,24 +15,18 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import sampleJson from '../../../useful_assets/sample.json';
 import { toast } from 'sonner';
 
-interface AdminDashboardProps {
-  activeSubTab?: 'matrix' | 'queue' | 'modifiers' | 'faceid';
-  setActiveSubTab?: (tab: 'matrix' | 'queue' | 'modifiers' | 'faceid') => void;
-}
+import { useParams } from 'react-router';
 
-export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboardProps = {}) {
+export function AdminDashboard() {
   const { state, dispatch } = useGlobalState();
-  
-  // Local fallback if tab state is not driven by the parent shell
-  const [localSubTab, setLocalSubTab] = useState<'matrix' | 'queue' | 'modifiers' | 'faceid'>('matrix');
-  const currentTab = activeSubTab || localSubTab;
-  const setCurrentTab = setActiveSubTab || setLocalSubTab;
+  const params = useParams();
+  const currentTab = params.tab || 'matrix';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGroupFilter, setSelectedGroupFilter] = useState('ALL_GROUPS');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL_STATUS');
   const [inspectedStudentId, setInspectedStudentId] = useState<string | null>(null);
-  
+
   // Custom API Console States
   const [apiPayloadStr, setApiPayloadStr] = useState(JSON.stringify(sampleJson, null, 2));
   const [apiConsoleResponse, setApiConsoleResponse] = useState<string>('');
@@ -62,7 +56,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
 
   // Groups and Students list
   const uniqueGroups = Array.from(new Set(state.students.map(s => s.group)));
-  const pendingAchievements = state.students.flatMap(s => 
+  const pendingAchievements = state.students.flatMap(s =>
     s.achievements.filter(a => a.status === 'Kutilmoqda').map(a => ({ ...a, studentId: s.id, studentName: s.fullName }))
   );
 
@@ -89,7 +83,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
     setRecoveryVal(st.recoveryScore.toString());
     setEmploymentVal(st.employmentScore.toString());
     setDisciplineVal(st.disciplineScore.toString());
-    
+
     // Auto-scroll to form or close other view
     setSelectedStudentTutorId(null);
   };
@@ -103,7 +97,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
     setSsVal(st.tutorEvaluation.softSkills === 1);
     setDiVal(st.tutorEvaluation.discipline === 1);
     setDlVal(st.tutorEvaluation.dormitoryLife === 1);
-    
+
     // Auto-close modifier view
     setSelectedStudentModifierId(null);
   };
@@ -175,7 +169,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
         type: 'IMPORT_API_DATA',
         payload: parsed
       });
-      
+
       const successLog = `[${timestampStr}] [SUCCESS] 200 OK - Student data parsed for ST-2026-8941. Attendance recalculated.`;
       setApiConsoleLogs(prev => [...prev, successLog]);
       setApiConsoleResponse(JSON.stringify({
@@ -218,12 +212,12 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 animate-fadeIn text-left">
-      
+
       {/* Top Banner Context Card */}
       <Card className="relative overflow-hidden border border-slate-800/80 bg-slate-950/40 p-6 backdrop-blur-2xl gap-0 py-0 flex-col justify-start">
         <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
-        
+
         <div className="relative z-10 flex flex-col sm:flex-row justify-between sm:items-center gap-4 w-full">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -252,11 +246,11 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
       </Card>
 
       {/* RENDER DYNAMIC SUB-TABS */}
-      
+
       {/* 1. MATRIX TAB */}
       {currentTab === 'matrix' && (
         <div className="space-y-6 animate-fadeIn">
-          
+
           {/* Key University Stats counters */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
@@ -288,7 +282,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                     PDP strategik nizomi bo'yicha real-vaqtda hisoblanayotgan va dynamic filtrlarga mos keluvchi koeffitsientlar.
                   </CardDescription>
                 </div>
-                
+
                 {/* Search & Select filters in a nice flex row */}
                 <div className="flex flex-wrap gap-2 text-xs">
                   <div className="flex items-center gap-2 bg-slate-50 dark:bg-zinc-950/60 border border-slate-200 dark:border-zinc-800/80 px-2.5 rounded-lg h-9 w-48 sm:w-64">
@@ -327,7 +321,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                 </div>
               </div>
             </CardHeader>
-            
+
             <CardContent className="p-0">
               {/* Premium Scrollable Table Container */}
               <div className="overflow-x-auto w-full select-none custom-scrollbar">
@@ -373,9 +367,8 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           </td>
                           <td className="py-3 px-3 text-slate-300 font-medium">{st.group}</td>
                           <td className="py-3 px-2 text-center">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider ${
-                              st.status === 'Grant' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider ${st.status === 'Grant' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+                              }`}>
                               {st.status}
                             </span>
                           </td>
@@ -391,18 +384,16 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           <td className="py-3 px-3 text-center text-indigo-300 font-bold">+{st.employmentScore}</td>
                           <td className="py-3 px-3 text-center font-black text-indigo-400 bg-indigo-500/10 text-xs tracking-wide">{st.finalScore}</td>
                           <td className="py-3 px-3 text-center">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                              st.isGrantCancelled ? 'bg-rose-500/15 border border-rose-500/30 text-rose-400' : 'bg-slate-900/60 text-slate-500'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${st.isGrantCancelled ? 'bg-rose-500/15 border border-rose-500/30 text-rose-400' : 'bg-slate-900/60 text-slate-500'
+                              }`}>
                               {st.isGrantCancelled ? 'BEKOR QILINGAN' : 'YO\'Q'}
                             </span>
                           </td>
                           <td className="py-3 px-3 text-center">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${
-                              st.riskLevel === 'High' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
-                              st.riskLevel === 'Medium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
-                              'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase border ${st.riskLevel === 'High' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
+                                st.riskLevel === 'Medium' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
+                                  'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                              }`}>
                               {st.riskLevel === 'High' ? 'YUQORI XAVF' : st.riskLevel === 'Medium' ? 'O\'RTACA XAVF' : 'KAM XAVF'}
                             </span>
                           </td>
@@ -459,7 +450,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                   {pendingAchievements.map(ach => (
                     <Card key={ach.id} className="border-slate-800 bg-slate-950/40 backdrop-blur-md overflow-hidden relative group hover:border-slate-700/60 transition-colors">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-2xl pointer-events-none" />
-                      
+
                       <CardHeader className="border-b border-slate-800/40 pb-4 bg-slate-950/20">
                         <div className="flex justify-between items-start gap-2">
                           <div>
@@ -471,16 +462,16 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           </span>
                         </div>
                       </CardHeader>
-                      
+
                       <CardContent className="py-4 space-y-4 text-xs text-slate-300">
                         <div className="space-y-1">
                           <h4 className="font-bold text-white text-sm">{ach.title}</h4>
                           <p className="text-slate-400 leading-relaxed">{ach.description}</p>
                           {ach.linkUrl && (
-                            <a 
-                              href={ach.linkUrl} 
-                              target="_blank" 
-                              rel="noreferrer" 
+                            <a
+                              href={ach.linkUrl}
+                              target="_blank"
+                              rel="noreferrer"
                               className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 hover:underline font-bold mt-2"
                             >
                               Sertifikat Hujjatini Ko'rish (Fayl) &rarr;
@@ -522,7 +513,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           </div>
                         </div>
                       </CardContent>
-                      
+
                       <CardFooter className="border-t border-slate-800/40 pt-4 bg-slate-950/20 grid grid-cols-2 gap-3">
                         <Button
                           onClick={() => handleVerifyAchievement(ach.studentId, ach.id, 'Tasdiqlandi')}
@@ -551,9 +542,9 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
       {/* 3. MODIFIERS & TUTOR TAB */}
       {currentTab === 'modifiers' && (
         <div className="space-y-6 animate-fadeIn">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             {/* Left Side: Select Student List */}
             <Card className="lg:col-span-1 border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none h-fit">
               <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
@@ -565,42 +556,39 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                   Reyting jarimalarini kiritish yoki tyutor madaniy ballarini tahrirlash uchun talabani tanlang:
                 </CardDescription>
               </CardHeader>
-              
-              <CardContent className="p-3 max-h-[480px] overflow-y-auto custom-scrollbar space-y-2">
+
+              <CardContent className="p-3 max-h-120 overflow-y-auto custom-scrollbar space-y-2">
                 {state.students.map(s => {
                   const isModifying = selectedStudentModifierId === s.id;
                   const isTutoring = selectedStudentTutorId === s.id;
                   const isAnySelected = isModifying || isTutoring;
 
                   return (
-                    <div 
-                      key={s.id} 
-                      className={`p-3 rounded-xl border text-xs flex flex-col gap-2 transition-all ${
-                        isAnySelected
+                    <div
+                      key={s.id}
+                      className={`p-3 rounded-xl border text-xs flex flex-col gap-2 transition-all ${isAnySelected
                           ? 'bg-indigo-600/10 border-indigo-500/40 shadow-md shadow-indigo-600/5'
                           : 'bg-slate-950/40 border-slate-800/80 hover:bg-slate-900/40'
-                      }`}
+                        }`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
                           <div className="font-extrabold text-white">{s.fullName}</div>
                           <span className="text-[9px] text-slate-500">{s.group} • ID: {s.id}</span>
                         </div>
-                        <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold ${
-                          s.status === 'Grant' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold ${s.status === 'Grant' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                          }`}>
                           {s.status}
                         </span>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/40">
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleOpenModifiers(s.id)}
-                          className={`h-7 text-[10px] font-bold ${
-                            isModifying ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                          } cursor-pointer`}
+                          className={`h-7 text-[10px] font-bold ${isModifying ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                            } cursor-pointer`}
                         >
                           Jarimalar / Bonus
                         </Button>
@@ -608,9 +596,8 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           size="sm"
                           variant="ghost"
                           onClick={() => handleOpenTutor(s.id)}
-                          className={`h-7 text-[10px] font-bold ${
-                            isTutoring ? 'bg-purple-500/20 text-purple-300' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                          } cursor-pointer`}
+                          className={`h-7 text-[10px] font-bold ${isTutoring ? 'bg-purple-500/20 text-purple-300' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                            } cursor-pointer`}
                         >
                           Tyutor Bahosi
                         </Button>
@@ -623,7 +610,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
 
             {/* Right Side: Render Form Panel */}
             <div className="lg:col-span-2 space-y-6">
-              
+
               {/* MODIFIERS PANEL */}
               {selectedStudentModifierId ? (
                 <Card className="border-indigo-500/20 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none animate-scaleUp">
@@ -635,9 +622,9 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           Talaba: <strong className="text-indigo-400">{state.students.find(s => s.id === selectedStudentModifierId)?.fullName}</strong>
                         </CardDescription>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setSelectedStudentModifierId(null)}
                         className="text-slate-500 hover:text-white h-8 cursor-pointer"
                       >
@@ -645,12 +632,12 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                       </Button>
                     </div>
                   </CardHeader>
-                  
+
                   <form onSubmit={handleSaveModifiers}>
                     <CardContent className="py-6 space-y-6">
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
+
                         {/* Penalty Score */}
                         <div className="space-y-2 p-4 rounded-xl border border-slate-800 bg-slate-950/20">
                           <div className="flex justify-between items-center">
@@ -661,13 +648,13 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                             <span className="font-mono font-bold text-rose-400 text-xs">-{penaltyVal} ball</span>
                           </div>
                           <p className="text-[10px] text-slate-500">Nizom qoidalari buzilishi bo'yicha chegiriladigan ma'muriy ball (Limit: 0-20)</p>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="20" 
+                          <input
+                            type="range"
+                            min="0"
+                            max="20"
                             step="0.5"
-                            value={penaltyVal} 
-                            onChange={e => setPenaltyVal(e.target.value)} 
+                            value={penaltyVal}
+                            onChange={e => setPenaltyVal(e.target.value)}
                             className="w-full accent-rose-500 h-1 bg-slate-800 rounded-lg cursor-pointer appearance-none"
                           />
                           <div className="flex justify-between text-[9px] text-slate-600 font-mono">
@@ -687,13 +674,13 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                             <span className="font-mono font-bold text-emerald-400 text-xs">+{recoveryVal} ball</span>
                           </div>
                           <p className="text-[10px] text-slate-500">Talaba tomonidan jarimalarni qoplash uchun olingan rag'bat (Limit: 0-10)</p>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="10" 
+                          <input
+                            type="range"
+                            min="0"
+                            max="10"
                             step="0.5"
-                            value={recoveryVal} 
-                            onChange={e => setRecoveryVal(e.target.value)} 
+                            value={recoveryVal}
+                            onChange={e => setRecoveryVal(e.target.value)}
                             className="w-full accent-emerald-500 h-1 bg-slate-800 rounded-lg cursor-pointer appearance-none"
                           />
                           <div className="flex justify-between text-[9px] text-slate-600 font-mono">
@@ -713,13 +700,13 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                             <span className="font-mono font-bold text-indigo-400 text-xs">+{employmentVal} ball</span>
                           </div>
                           <p className="text-[10px] text-slate-500">Ixtisoslashuv yo'nalishida bandligi yoki ishga joylashgani (Limit: 0-10)</p>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="10" 
+                          <input
+                            type="range"
+                            min="0"
+                            max="10"
                             step="1"
-                            value={employmentVal} 
-                            onChange={e => setEmploymentVal(e.target.value)} 
+                            value={employmentVal}
+                            onChange={e => setEmploymentVal(e.target.value)}
                             className="w-full accent-indigo-500 h-1 bg-slate-800 rounded-lg cursor-pointer appearance-none"
                           />
                           <div className="flex justify-between text-[9px] text-slate-600 font-mono">
@@ -739,13 +726,13 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                             <span className="font-mono font-bold text-white text-xs">{disciplineVal} ball</span>
                           </div>
                           <p className="text-[10px] text-slate-500">Dars intizomi va jamoat qoidalariga rioya etish darajasi (Limit: 0-10)</p>
-                          <input 
-                            type="range" 
-                            min="0" 
-                            max="10" 
+                          <input
+                            type="range"
+                            min="0"
+                            max="10"
                             step="1"
-                            value={disciplineVal} 
-                            onChange={e => setDisciplineVal(e.target.value)} 
+                            value={disciplineVal}
+                            onChange={e => setDisciplineVal(e.target.value)}
                             className="w-full accent-slate-400 h-1 bg-slate-800 rounded-lg cursor-pointer appearance-none"
                           />
                           <div className="flex justify-between text-[9px] text-slate-600 font-mono">
@@ -758,18 +745,18 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                       </div>
 
                     </CardContent>
-                    
+
                     <CardFooter className="border-t border-slate-800/40 pt-4 bg-slate-950/20 flex justify-end gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => setSelectedStudentModifierId(null)}
                         className="text-slate-400 border-slate-800 hover:bg-slate-900 hover:text-white cursor-pointer text-xs"
                       >
                         Bekor qilish
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold cursor-pointer text-xs"
                       >
                         Saqlash (Qayta hisoblash)
@@ -787,9 +774,9 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           Talaba: <strong className="text-purple-400">{state.students.find(s => s.id === selectedStudentTutorId)?.fullName}</strong>
                         </CardDescription>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setSelectedStudentTutorId(null)}
                         className="text-slate-500 hover:text-white h-8 cursor-pointer"
                       >
@@ -797,7 +784,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                       </Button>
                     </div>
                   </CardHeader>
-                  
+
                   <form onSubmit={handleSaveTutor}>
                     <CardContent className="py-6 space-y-4 text-xs text-slate-300">
                       <p className="text-slate-400 leading-relaxed mb-4">
@@ -805,7 +792,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        
+
                         {[
                           { label: "Etika va Korporativ Madaniyat", desc: "Kiyinish, muomala odobi va universitet nufuzini saqlash", checked: ccVal, onChange: setCcVal },
                           { label: "Ijtimoiy va Jamoat Faolligi", desc: "Tadbirlar va ko'ngilli loyihalarda ishtiroki", checked: saVal, onChange: setSaVal },
@@ -813,18 +800,17 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                           { label: "Tyutor Bilan Doimiy Aloqa", desc: "Tyutor topshiriqlari va yo'riqnomalariga rioya etishi", checked: diVal, onChange: setDiVal },
                           { label: "Yotoqxona Tartib-Intizomi", desc: "Xonalarni toza saqlash va mulkka zarar yetkazmaslik", checked: dlVal, onChange: setDlVal },
                         ].map((item, idx) => (
-                          <label 
+                          <label
                             key={idx}
-                            className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${
-                              item.checked 
-                                ? 'bg-purple-500/10 border-purple-500/30' 
+                            className={`p-4 rounded-xl border flex items-start gap-3 cursor-pointer transition-all ${item.checked
+                                ? 'bg-purple-500/10 border-purple-500/30'
                                 : 'bg-slate-950/40 border-slate-800 hover:bg-slate-900/20'
-                            }`}
+                              }`}
                           >
-                            <input 
-                              type="checkbox" 
-                              checked={item.checked} 
-                              onChange={e => item.onChange(e.target.checked)} 
+                            <input
+                              type="checkbox"
+                              checked={item.checked}
+                              onChange={e => item.onChange(e.target.checked)}
                               className="accent-purple-500 w-4 h-4 mt-0.5"
                             />
                             <div className="space-y-0.5">
@@ -836,18 +822,18 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
 
                       </div>
                     </CardContent>
-                    
+
                     <CardFooter className="border-t border-slate-800/40 pt-4 bg-slate-950/20 flex justify-end gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => setSelectedStudentTutorId(null)}
                         className="text-slate-400 border-slate-800 hover:bg-slate-900 hover:text-white cursor-pointer text-xs"
                       >
                         Bekor qilish
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="bg-purple-600 hover:bg-purple-500 text-white font-bold cursor-pointer text-xs"
                       >
                         Tyutor Bahosini Saqlash
@@ -873,12 +859,12 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
       {/* 4. FACEID & API PLAYGROUND TAB */}
       {currentTab === 'faceid' && (
         <div className="space-y-6 animate-fadeIn">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             {/* Cyber Terminal Body (Left: JSON and Response) */}
             <div className="lg:col-span-2 space-y-6">
-              
+
               <Card className="border-slate-800 bg-slate-950 backdrop-blur-xl relative overflow-hidden font-mono text-xs">
                 {/* Terminal Header */}
                 <div className="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-slate-800">
@@ -892,7 +878,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                       FaceID API Developer Shell
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <span className="flex h-2 w-2 relative">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -904,7 +890,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
 
                 <div className="p-4 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
+
                     {/* JSON Body Request field */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -924,7 +910,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                     {/* HTTP Response output */}
                     <div className="space-y-2">
                       <Label className="text-[10px] text-slate-500 font-bold uppercase font-sans tracking-wide">HTTP Response Router Stack</Label>
-                      <pre className="w-full p-3 rounded-lg bg-black/90 border border-slate-800 text-[11px] font-mono text-slate-400 h-[240px] overflow-auto custom-scrollbar leading-relaxed">
+                      <pre className="w-full p-3 rounded-lg bg-black/90 border border-slate-800 text-[11px] font-mono text-slate-400 h-60 overflow-auto custom-scrollbar leading-relaxed">
                         {apiConsoleResponse || "/* Response JSON stream will load here after execution. Click the simulated run key... */"}
                       </pre>
                     </div>
@@ -950,7 +936,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
 
             {/* Right Side: Gateway System Logs & Live Status Console */}
             <div className="lg:col-span-1 space-y-6">
-              
+
               <Card className="border-slate-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-md shadow-sm dark:shadow-none h-full flex flex-col justify-between">
                 <div>
                   <CardHeader className="border-b border-slate-200 dark:border-zinc-800/40 pb-4">
@@ -969,7 +955,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                         let logColor = 'text-slate-400';
                         if (log.includes('[SUCCESS]')) logColor = 'text-emerald-400';
                         if (log.includes('[ERROR]')) logColor = 'text-rose-400 animate-pulse';
-                        
+
                         return (
                           <div key={idx} className={`${logColor} leading-relaxed`}>
                             {log}
@@ -1000,16 +986,15 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                 Platformadagi har bir administrator, mentor yoki talaba harakati 100% shaffoflik uchun to'liq yozib borilmoqda.
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-4 max-h-[300px] overflow-y-auto custom-scrollbar space-y-2">
+            <CardContent className="p-4 max-h-75 overflow-y-auto custom-scrollbar space-y-2">
               {state.auditLogs.map(log => (
                 <div key={log.id} className="p-3 rounded-lg bg-slate-950/40 border border-slate-800/80 text-[11px] text-slate-300 flex flex-col md:flex-row justify-between md:items-center gap-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
-                        log.userRole === 'Admin' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' :
-                        log.userRole === 'Mentor' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
-                        'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
-                      }`}>
+                      <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${log.userRole === 'Admin' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' :
+                          log.userRole === 'Mentor' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
+                            'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
+                        }`}>
                         {log.userRole}
                       </span>
                       <strong className="text-white text-xs">{log.action}</strong>
@@ -1038,7 +1023,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end animate-fadeIn">
             {/* Dark background close listener */}
             <div className="absolute inset-0 z-0" onClick={() => setInspectedStudentId(null)} />
-            
+
             <div className="relative z-10 w-full max-w-lg bg-slate-950 border-l border-slate-800 p-6 overflow-y-auto h-full flex flex-col justify-between animate-slideLeft text-xs text-slate-400">
               <div className="space-y-6">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-4">
@@ -1109,7 +1094,7 @@ export function AdminDashboard({ activeSubTab, setActiveSubTab }: AdminDashboard
                 {/* Audit trail vertical timeline */}
                 <div className="space-y-3">
                   <h4 className="text-white font-bold uppercase tracking-wider text-[10px]">Ushbu talabaning audit xronologiyasi</h4>
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                  <div className="space-y-3 max-h-75 overflow-y-auto pr-1 custom-scrollbar">
                     {studentLogs.length === 0 ? (
                       <div className="p-8 text-center text-xs text-slate-600 border border-dashed border-slate-800 rounded-lg">
                         Ushbu talabaga tegishli logs topilmadi.
